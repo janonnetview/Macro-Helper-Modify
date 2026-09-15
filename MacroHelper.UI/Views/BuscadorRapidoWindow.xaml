@@ -1,0 +1,840 @@
+﻿<Window x:Class="MacroHelper.UI.Views.BuscadorRapidoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:MacroHelper.UI.Controls"
+        xmlns:ent="clr-namespace:MacroHelper.Core.Entities;assembly=MacroHelper.Core"
+        xmlns:h="clr-namespace:MacroHelper.UI.Helpers"
+        Width="568" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" Topmost="True"
+        ShowInTaskbar="False" ResizeMode="NoResize"
+        WindowStartupLocation="Manual"
+        TextOptions.TextFormattingMode="Ideal"
+        PreviewKeyDown="Window_PreviewKeyDown">
+
+    <!--
+        ══════════════════════════════════════════════════════════════════════════════
+        BUSCA RÁPIDA
+        ══════════════════════════════════════════════════════════════════════════════
+
+        Ordem de leitura, e nada compete com ela:
+
+            campo de busca  →  título do item  →  resumo  →  seleção  →  prévia
+
+        Abas, botões, etiquetas de atalho e o rodapé de teclas são todos cinza. O verde
+        aparece em exatamente quatro lugares, e todos significam alguma coisa:
+        a aba ativa, o traço do item selecionado, a lupa enquanto se digita e os
+        {{placeholders}} dentro da prévia.
+
+        O item selecionado NÃO é um bloco verde: é vidro um grau mais claro, uma borda de
+        1px e um traço de 2px na lateral esquerda.
+
+        A janela é quase opaca porque não existe blur de sistema por baixo dela — o vidro
+        aqui é composto (gradiente + reflexo de quina + sombra difusa), não emprestado do
+        Windows.
+    -->
+
+    <Window.Resources>
+        <!-- ABA — sem caixa, sem contorno. O que marca a ativa é o texto mais claro e um
+             traço curto de accent. -->
+        <Style x:Key="AbaCategoria" TargetType="RadioButton">
+            <Setter Property="Cursor"           Value="Hand"/>
+            <Setter Property="Focusable"        Value="False"/>
+            <Setter Property="FontSize"         Value="12"/>
+            <Setter Property="Margin"           Value="0,0,10,0"/>
+            <Setter Property="Foreground"       Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid>
+                            <Border x:Name="bg" Background="Transparent"
+                                    CornerRadius="{StaticResource RadiusSm}"
+                                    Padding="11,6,11,9"/>
+                            <ContentPresenter VerticalAlignment="Center" Margin="11,6,11,9"/>
+                            <Border x:Name="traco" Height="2" Width="18" VerticalAlignment="Bottom"
+                                    HorizontalAlignment="Center" CornerRadius="1"
+                                    Background="{DynamicResource AccentBrush}" Opacity="0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource SurfaceGlassBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="traco" Property="Opacity" Value="1"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Ação secundária da barra de abas (Criar / Limpar). Discreta a ponto de sumir
+             quando não se está procurando por ela. -->
+        <Style x:Key="AcaoDaAba" TargetType="Button" BasedOn="{StaticResource ButtonGhost}">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+
+        <!-- O lápis das linhas de Tarefas e Lembretes. Apagado enquanto ninguém repara, e na
+             cor do tema quando o mouse chega: é o que o separa do resto da linha, onde o
+             clique faz outra coisa (riscar a tarefa, marcar o lembrete como feito).
+
+             O ícone não fixa Foreground — ele HERDA o do botão, que é quem muda no hover.
+             Fixar lá dentro deixaria o lápis cinza para sempre. -->
+        <Style x:Key="BotaoEditarDaLinha" TargetType="Button" BasedOn="{StaticResource ButtonIconOnly}">
+            <Setter Property="Width"      Value="26"/>
+            <Setter Property="Height"     Value="26"/>
+            <Setter Property="Opacity"    Value="0.55"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity"    Value="1"/>
+                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Texto do rodapé: mesma família e mesmo cinza para as três dicas. -->
+        <Style x:Key="DicaTexto" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,14,0"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Sem sombra, aqui e nas outras flutuantes: quem separa a janela do que está atrás é a
+         borda do cartão. A sombra do sistema sai no MolduraNativa, chamado no construtor — e a
+         largura da janela é a do cartão, porque não há mais margem guardando espaço para sombra.
+
+         O vidro inteiro é a alça de arraste: campo de busca, abas, botões e itens da lista
+         tratam o próprio clique e não deixam borbulhar até aqui, então só o fundo arrasta. -->
+    <Border x:Name="Vidro" CornerRadius="{StaticResource RadiusWindow}"
+            Background="{DynamicResource FloatSurfaceBrush}"
+            BorderBrush="{DynamicResource FloatBorderBrush}"
+            BorderThickness="1"
+            MouseLeftButtonDown="Vidro_MouseLeftButtonDown">
+        <Grid>
+            <StackPanel>
+
+                <!-- ══════════════ CAMPO DE BUSCA ══════════════
+                     Sem caixa: o campo É o topo da janela. Nada de borda verde
+                     permanente — a lupa acende em accent enquanto há texto, e o cursor
+                     é accent. -->
+                <Grid Margin="26,24,22,22">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="&#xE721;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="17" Margin="0,0,14,0" VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=TxtBusca}" Value="">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <TextBox x:Name="TxtBusca" Grid.Column="1"
+                             Background="Transparent" BorderThickness="0"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             CaretBrush="{DynamicResource AccentBrush}"
+                             SelectionBrush="{DynamicResource AccentBrush}"
+                             SelectionOpacity="0.25"
+                             FontSize="18" Padding="0,2"
+                             VerticalContentAlignment="Center"
+                             FocusVisualStyle="{x:Null}"
+                             TextChanged="TxtBusca_TextChanged"
+                             KeyDown="TxtBusca_KeyDown"/>
+                    <!-- O texto do placeholder muda com a aba; o code-behind escreve nele. -->
+                    <TextBlock x:Name="TxtPlaceholder" Grid.Column="1" Text="Buscar macro..."
+                               FontSize="18" Foreground="{DynamicResource TextMutedBrush}"
+                               VerticalAlignment="Center" IsHitTestVisible="False">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=TxtBusca}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <Border Grid.Column="2" Style="{StaticResource KbdChip}" VerticalAlignment="Center"
+                            Margin="12,0,0,0" Opacity="0.7">
+                        <TextBlock Text="ESC" Style="{StaticResource KbdChipText}"
+                                   Foreground="{DynamicResource TextMutedBrush}"/>
+                    </Border>
+                </Grid>
+
+                <!--
+                    Abas. Macros vem marcada daqui, e não do code-behind, para que o arquivo que
+                    desenha a janela diga qual é a padrão. O Checked do RbMacros chega a disparar
+                    durante o InitializeComponent — o handler ignora enquanto a janela não terminou
+                    de montar.
+                -->
+                <Border Padding="14,7,20,7" BorderThickness="0,1,0,1"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <RadioButton x:Name="RbMacros"  Content="Macros"  IsChecked="True"
+                                         GroupName="Categoria" Style="{StaticResource AbaCategoria}"
+                                         Checked="Aba_Checked"/>
+                            <RadioButton x:Name="RbTarefas" Content="Tarefas"
+                                         GroupName="Categoria" Style="{StaticResource AbaCategoria}"
+                                         Checked="Aba_Checked"/>
+                            <RadioButton x:Name="RbLembretes" Content="Lembretes"
+                                         GroupName="Categoria" Style="{StaticResource AbaCategoria}"
+                                         Checked="Aba_Checked"/>
+                            <RadioButton x:Name="RbNotas"   Content="Notas"
+                                         GroupName="Categoria" Style="{StaticResource AbaCategoria}"
+                                         Checked="Aba_Checked"/>
+                            <RadioButton x:Name="RbClipboard" Content="Copiados"
+                                         GroupName="Categoria" Style="{StaticResource AbaCategoria}"
+                                         Checked="Aba_Checked"/>
+                        </StackPanel>
+
+                        <!-- Só um dos dois aparece por vez, e nunca em Macros: criar nas abas que
+                             não têm formulário no app, limpar na de copiados. -->
+                        <Button x:Name="BtnLimpar" Grid.Column="1" Click="BtnLimpar_Click"
+                                Visibility="Collapsed" Content="Limpar"
+                                Style="{StaticResource AcaoDaAba}"
+                                ToolTip="Esvaziar o histórico. O que está fixado permanece"/>
+
+                        <!-- O criar precisa de um alvo visível: Ctrl+N ninguém descobre sozinho. -->
+                        <Button x:Name="BtnNovo" Grid.Column="1" Click="BtnNovo_Click"
+                                Visibility="Collapsed" Content="+ Criar"
+                                Style="{StaticResource AcaoDaAba}"
+                                ToolTip="Criar (Ctrl+N)"/>
+                    </Grid>
+                </Border>
+
+                <!-- ══════════════ RESULTADOS ══════════════ -->
+                <ListBox x:Name="ListResultados"
+                         Background="Transparent" BorderThickness="0"
+                         Padding="0,10" MaxHeight="368"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         KeyDown="ListResultados_KeyDown"
+                         MouseLeftButtonUp="ListResultados_MouseLeftButtonUp">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="18,13"/>
+                            <Setter Property="Margin" Value="10,1"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Focusable" Value="True"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Grid>
+                                            <Border x:Name="bg" CornerRadius="{StaticResource RadiusMd}"
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderThickness="1" BorderBrush="Transparent"/>
+                                            <!-- O traço lateral é o que diz "é este". Dois pixels
+                                                 bastam quando o resto da linha não grita. -->
+                                            <Border x:Name="marca" Width="2" Height="20" CornerRadius="1"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                    Margin="1,0,0,0" Opacity="0"
+                                                    Background="{DynamicResource AccentBrush}"/>
+                                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                                            <!-- Separador: some no item ativo e no vizinho de cima
+                                                 do ativo seria ideal, mas um traço de 6% de branco
+                                                 já desaparece atrás do vidro do selecionado. -->
+                                            <Border x:Name="sep" Height="1" VerticalAlignment="Bottom"
+                                                    Margin="18,0" Opacity="0.5"
+                                                    Background="{DynamicResource BorderSubtleBrush}"/>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bg" Property="Background"
+                                                        Value="{DynamicResource SurfaceGlassBrush}"/>
+                                                <Setter TargetName="sep" Property="Opacity" Value="0"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="bg" Property="Background"
+                                                        Value="{DynamicResource SurfaceGlassActiveBrush}"/>
+                                                <Setter TargetName="bg" Property="BorderBrush"
+                                                        Value="{DynamicResource BorderSubtleBrush}"/>
+                                                <Setter TargetName="marca" Property="Opacity" Value="1"/>
+                                                <Setter TargetName="sep" Property="Opacity" Value="0"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+
+                    <!--
+                        Um DataTemplate por tipo, e nenhum ItemTemplate: a lista recebe macros,
+                        tarefas ou notas conforme a aba, e quem escolhe o desenho de cada linha é o
+                        próprio WPF, pelo tipo do item. Não há seletor nem "se a aba for tal"
+                        espalhado pelo code-behind — um tipo novo é um template novo aqui.
+                    -->
+                    <ListBox.Resources>
+
+                        <!-- ── Macro ─────────────────────────────────────────────────────── -->
+                        <DataTemplate DataType="{x:Type ent:Macro}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBlock Text="{Binding Titulo}" FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding Conteudo}" FontSize="11.5"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               MaxHeight="17" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Click="BtnFavorito_Click" Tag="{Binding}"
+                                        Style="{StaticResource ButtonIconOnly}"
+                                        Width="26" Height="26" Margin="0,0,8,0" VerticalAlignment="Center"
+                                        ToolTip="Favoritar">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="&#xE734;"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                <Setter Property="Opacity" Value="0.35"/>
+                                                <Style.Triggers>
+                                                    <!-- Favorito é estado, e estado é o que ganha
+                                                         accent. A estrela deixou de ser amarela:
+                                                         era a única cor da lista inteira. -->
+                                                    <DataTrigger Binding="{Binding Favorito}" Value="True">
+                                                        <Setter Property="Text" Value="&#xE735;"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                                        <Setter Property="Opacity" Value="1"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Button>
+                                <!-- A etiqueta de atalho é metadado: cinza, monoespaçada, do
+                                     tamanho de um respiro. Antes competia com o título. -->
+                                <Border Grid.Column="2" Style="{StaticResource AtalhoBadge}"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Atalho}" Style="{StaticResource AtalhoBadgeText}"/>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+
+                        <!-- ── Tarefa ────────────────────────────────────────────────────── -->
+                        <DataTemplate DataType="{x:Type ent:Tarefa}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!--
+                                    A caixinha é só o desenho do estado: quem marca e desmarca é o
+                                    Enter ou o clique na linha inteira. Um segundo alvo de clique
+                                    com a mesma função só daria a chance de errar o menor.
+                                -->
+                                <Border Grid.Column="0" Width="18" Height="18"
+                                        CornerRadius="{StaticResource RadiusXs}"
+                                        BorderThickness="1" Margin="0,1,13,0" VerticalAlignment="Top">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background"  Value="Transparent"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Concluida}" Value="True">
+                                                    <Setter Property="Background"  Value="{DynamicResource AccentBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="9"
+                                               Foreground="{DynamicResource AccentForegroundBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Visibility="{Binding Concluida, Converter={StaticResource BoolToVisConv}}"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Titulo}" FontSize="14"
+                                               TextTrimming="CharacterEllipsis" Margin="0,0,0,4">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Concluida}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <!-- Prazo -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,14,0"
+                                                    Visibility="{Binding Prazo, Converter={StaticResource ObjNullToVis}}">
+                                            <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                       Foreground="{DynamicResource TextMutedBrush}"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding Prazo, Converter={StaticResource DataAmigavel}}"
+                                                       FontSize="11" VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextMutedBrush}"/>
+                                        </StackPanel>
+
+                                        <!-- Lembrete ainda por disparar -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,14,0"
+                                                    Visibility="{Binding TemLembretePendente, Converter={StaticResource BoolToVisConv}}">
+                                            <TextBlock Text="&#xEA8F;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                       Foreground="{DynamicResource AccentTextBrush}"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding Lembrete, Converter={StaticResource DataAmigavel}, ConverterParameter=hora}"
+                                                       FontSize="11" VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource AccentTextBrush}"/>
+                                        </StackPanel>
+
+                                        <TextBlock Text="{Binding Observacoes}" FontSize="11"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                   Visibility="{Binding Observacoes, Converter={StaticResource NullToVis}}"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Prioridade alta é a única que precisa gritar. -->
+                                <Border Grid.Column="2" VerticalAlignment="Top" Margin="10,1,0,0"
+                                        Background="{DynamicResource DangerBgBrush}"
+                                        BorderBrush="{DynamicResource DangerBrush}">
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource Badge}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Setter Property="Padding" Value="9,2"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Prioridade}" Value="Alta">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="Alta" Style="{StaticResource BadgeText}"
+                                               Foreground="{DynamicResource DangerBrush}"/>
+                                </Border>
+
+                                <!-- O lápis: em Tarefas o clique na linha risca o item, então
+                                     abrir para editar precisa de alvo próprio. Faz o mesmo que o
+                                     F2 do rodapé, para quem está com a mão no mouse. -->
+                                <Button Grid.Column="3" Click="BtnEditarItem_Click" Tag="{Binding}"
+                                        Style="{StaticResource BotaoEditarDaLinha}"
+                                        Margin="6,0,0,0" VerticalAlignment="Center"
+                                        ToolTip="Editar (F2)">
+                                    <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+
+                        <!-- ── Lembrete (o compromisso com dia e hora) ───────────────────── -->
+                        <DataTemplate DataType="{x:Type ent:Compromisso}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!--
+                                    A etiqueta de hora ocupa aqui o lugar da caixinha da tarefa. É o
+                                    que faz a linha ser lida como agenda mesmo dentro de uma lista de
+                                    busca: o dado principal de um lembrete é o relógio.
+                                -->
+                                <Border Grid.Column="0" CornerRadius="{StaticResource RadiusXs}"
+                                        Padding="10,4" Margin="0,0,13,0"
+                                        VerticalAlignment="Center" MinWidth="54"
+                                        BorderThickness="1">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background"  Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Agendado}" Value="False">
+                                                    <Setter Property="Background" Value="{DynamicResource BadgeBgBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <!-- Quando não há data, o texto é "Sem data": nem o corpo nem a
+                                         cor de uma hora. FontSize no Style porque valor local no
+                                         elemento venceria o trigger. -->
+                                    <TextBlock Text="{Binding HoraTexto}" HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontSize"   Value="11.5"/>
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding TemData}" Value="False">
+                                                        <Setter Property="FontSize"   Value="10.5"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Agendado}" Value="False">
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Titulo}" FontSize="14"
+                                               TextTrimming="CharacterEllipsis" Margin="0,0,0,4">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cancelado}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Realizado}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding Quando, Converter={StaticResource DataAmigavel}}"
+                                                   FontSize="11" VerticalAlignment="Center" Margin="0,0,14,0"
+                                                   Foreground="{DynamicResource TextMutedBrush}"/>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,14,0"
+                                                    Visibility="{Binding Local, Converter={StaticResource NullToVis}}">
+                                            <TextBlock Text="&#xE707;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                       Foreground="{DynamicResource TextMutedBrush}"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding Local}" FontSize="11" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{DynamicResource TextMutedBrush}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Horizontal"
+                                                    Visibility="{Binding Agendado, Converter={StaticResource BoolToVisConv}}">
+                                            <TextBlock Text="&#xEA8F;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                       Foreground="{DynamicResource AccentTextBrush}"
+                                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding AvisosTexto}" FontSize="11"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource AccentTextBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <Border Grid.Column="2" VerticalAlignment="Top" Margin="10,1,0,0"
+                                        Background="{DynamicResource DangerBgBrush}"
+                                        BorderBrush="{DynamicResource DangerBrush}"
+                                        Visibility="{Binding Cancelado, Converter={StaticResource BoolToVisConv}}">
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource Badge}">
+                                            <Setter Property="Padding" Value="9,2"/>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="Cancelado" Style="{StaticResource BadgeText}"
+                                               Foreground="{DynamicResource DangerBrush}"/>
+                                </Border>
+
+                                <!-- O lápis: em Lembretes o clique na linha marca como feito, então
+                                     abrir para editar precisa de alvo próprio. Faz o mesmo que o
+                                     F2 do rodapé, para quem está com a mão no mouse. -->
+                                <Button Grid.Column="3" Click="BtnEditarItem_Click" Tag="{Binding}"
+                                        Style="{StaticResource BotaoEditarDaLinha}"
+                                        Margin="6,0,0,0" VerticalAlignment="Center"
+                                        ToolTip="Editar (F2)">
+                                    <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+
+                        <!-- ── Nota ──────────────────────────────────────────────────────── -->
+                        <DataTemplate DataType="{x:Type ent:Nota}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <TextBlock Text="&#xE718;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                   Foreground="{DynamicResource AccentTextBrush}"
+                                                   VerticalAlignment="Center" Margin="0,0,7,0"
+                                                   Visibility="{Binding Fixada, Converter={StaticResource BoolToVisConv}}"/>
+                                        <TextBlock Text="{Binding Titulo}" FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Resumo}" FontSize="11.5"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               MaxHeight="17" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                           Text="{Binding DataDeExibicao, Converter={StaticResource DataAmigavel}}"
+                                           FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
+                            </Grid>
+                        </DataTemplate>
+
+                        <!-- ── Área de transferência ─────────────────────────────────────── -->
+                        <DataTemplate DataType="{x:Type ent:ItemClipboard}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <!-- O texto copiado É o título aqui: não há nome para dar a ele, e
+                                         o que identifica o item é como ele começa. -->
+                                    <TextBlock Text="{Binding Resumo}" FontSize="13"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               MaxHeight="34" TextTrimming="CharacterEllipsis"
+                                               TextWrapping="Wrap" Margin="0,0,0,4"/>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding DataCopia, Converter={StaticResource DataAmigavel}, ConverterParameter=hora}"
+                                                   FontSize="10" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextMutedBrush}"/>
+                                        <TextBlock Text="  ·  " FontSize="10" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextMutedBrush}"/>
+                                        <TextBlock Text="{Binding Medida}" FontSize="10"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextMutedBrush}"/>
+                                        <TextBlock Text="  ·  " FontSize="10" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   Visibility="{Binding Origem, Converter={StaticResource NullToVis}}"/>
+                                        <TextBlock Text="{Binding Origem}" FontSize="10" MaxWidth="150"
+                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   Visibility="{Binding Origem, Converter={StaticResource NullToVis}}"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Fixar é o que separa "copiei agora" de "isto eu uso todo dia": o
+                                     fixado sobe ao topo e a poda por retenção não o alcança. -->
+                                <Button Grid.Column="1" Click="BtnFixarClipboard_Click" Tag="{Binding}"
+                                        Style="{StaticResource ButtonIconOnly}"
+                                        Width="26" Height="26" Margin="0,0,4,0" VerticalAlignment="Center"
+                                        ToolTip="Fixar no topo">
+                                    <TextBlock Text="&#xE718;" FontFamily="Segoe MDL2 Assets" FontSize="11.5"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                <Setter Property="Opacity"    Value="0.6"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Fixado}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                                        <Setter Property="Opacity"    Value="1"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Button>
+
+                                <Button Grid.Column="2" Click="BtnApagarClipboard_Click" Tag="{Binding}"
+                                        Style="{StaticResource ButtonIconOnly}"
+                                        Width="26" Height="26" VerticalAlignment="Center"
+                                        ToolTip="Remover do histórico (Delete)">
+                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                               Opacity="0.6"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.Resources>
+                </ListBox>
+
+                <!-- ══════════════ PRÉVIA ══════════════
+                     Não é um segundo cartão flutuando dentro da janela: é um rebaixo na
+                     própria superfície — mais escuro que o vidro em volta, borda mínima,
+                     fonte monoespaçada. O verde aqui aparece só nos {{placeholders}}, que
+                     o PreviewFormatador pinta. -->
+                <Border x:Name="PainelPreview" Visibility="Collapsed"
+                        Margin="14,4,14,10" Padding="16,13"
+                        CornerRadius="{StaticResource RadiusMd}"
+                        Background="{DynamicResource SurfaceInsetBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
+                        BorderThickness="1"
+                        MaxHeight="118">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="92">
+                        <!--
+                            Uma linha por item, e não um TextBlock só com quebras: é o que
+                            mantém o número alado ao lado da linha CERTA quando o texto
+                            quebra sozinho. A numeração é gaveta de 26px, alinhada à
+                            direita, no cinza mais apagado que existe — ela orienta, não
+                            se lê.
+                        -->
+                        <ItemsControl x:Name="ListaPreview">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="26"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Numero}"
+                                                   FontFamily="Cascadia Mono, Consolas"
+                                                   FontSize="10" Opacity="0.45"
+                                                   TextAlignment="Right" Margin="0,0,12,0"
+                                                   Foreground="{DynamicResource TextMutedBrush}"/>
+                                        <TextBlock Grid.Column="1"
+                                                   h:PreviewFormatador.Linha="{Binding}"
+                                                   FontSize="11.5" TextWrapping="Wrap"
+                                                   FontFamily="Cascadia Mono, Consolas"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Estado vazio — a frase inteira vem do code-behind, que sabe a aba e o termo. -->
+                <Border Padding="24,22">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Items.Count, ElementName=ListResultados}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock x:Name="TxtVazio" HorizontalAlignment="Center" TextAlignment="Center"
+                               TextWrapping="Wrap" Text="Nenhuma macro cadastrada ainda."
+                               Foreground="{DynamicResource TextMutedBrush}" FontSize="12.5"/>
+                </Border>
+
+                <!-- ══════════════ RODAPÉ ══════════════
+                     Fica a 45% de opacidade até o mouse entrar na janela. Quem usa por
+                     teclado não precisa dele na frente o tempo todo; quem procura, acha. -->
+                <Border Padding="18,11" BorderThickness="0,1,0,0"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Opacity" Value="0.45"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=Vidro}" Value="True">
+                                    <Setter Property="Opacity" Value="1"/>
+                                </DataTrigger>
+                                <!-- Erro não pode ficar em 45%: é a única notícia que esta
+                                     janela dá de uma ação que não funcionou. -->
+                                <DataTrigger Binding="{Binding Visibility, ElementName=Estado}" Value="Visible">
+                                    <Setter Property="Opacity" Value="1"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel x:Name="PainelDicas" Grid.Column="0" Orientation="Horizontal">
+                            <Border Style="{StaticResource KbdChip}" Margin="0,0,5,0">
+                                <TextBlock Text="↑↓" Style="{StaticResource KbdChipText}"
+                                           Foreground="{DynamicResource TextMutedBrush}"/>
+                            </Border>
+                            <TextBlock Text="navegar" Style="{StaticResource DicaTexto}"/>
+                            <Border Style="{StaticResource KbdChip}" Margin="0,0,5,0">
+                                <TextBlock Text="Enter" Style="{StaticResource KbdChipText}"
+                                           Foreground="{DynamicResource TextMutedBrush}"/>
+                            </Border>
+                            <!-- O que o Enter faz depende da aba: inserir o texto ou concluir a tarefa. -->
+                            <TextBlock x:Name="TxtDicaAcao" Text="inserir  " Style="{StaticResource DicaTexto}"/>
+                            <Border Style="{StaticResource KbdChip}" Margin="0,0,5,0">
+                                <TextBlock Text="Tab" Style="{StaticResource KbdChipText}"
+                                           Foreground="{DynamicResource TextMutedBrush}"/>
+                            </Border>
+                            <TextBlock Text="trocar aba" Style="{StaticResource DicaTexto}"/>
+
+                            <!-- Em Tarefas e Lembretes: lá o Enter risca o item, então editar
+                                 precisa de tecla própria. -->
+                            <StackPanel x:Name="DicaEditar" Orientation="Horizontal" Visibility="Collapsed">
+                                <Border Style="{StaticResource KbdChip}" Margin="0,0,5,0">
+                                    <TextBlock Text="F2" Style="{StaticResource KbdChipText}"
+                                               Foreground="{DynamicResource TextMutedBrush}"/>
+                                </Border>
+                                <TextBlock Text="editar" Style="{StaticResource DicaTexto}"/>
+                            </StackPanel>
+
+                            <!-- Só em Copiados: apagar um item do histórico é a única ação da aba
+                                 que não tem botão óbvio na linha. -->
+                            <StackPanel x:Name="DicaApagar" Orientation="Horizontal" Visibility="Collapsed">
+                                <Border Style="{StaticResource KbdChip}" Margin="0,0,5,0">
+                                    <TextBlock Text="Shift+Del" Style="{StaticResource KbdChipText}"
+                                               Foreground="{DynamicResource TextMutedBrush}"/>
+                                </Border>
+                                <TextBlock Text="apagar" Style="{StaticResource DicaTexto}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Toma o lugar das dicas quando uma ação falha, e sai na busca
+                             seguinte. É o único aviso desta janela: aqui não há o toast das
+                             telas de dentro do app. -->
+                        <c:LinhaDeEstado x:Name="Estado" Grid.Column="0" FontSize="9.5"
+                                         VerticalAlignment="Center" Visibility="Collapsed"/>
+                        <TextBlock Grid.Column="1" FontSize="9.5" VerticalAlignment="Center"
+                                   FontFamily="Cascadia Mono, Consolas"
+                                   Foreground="{DynamicResource TextMutedBrush}">
+                            <Run Text="{Binding Items.Count, ElementName=ListResultados, Mode=OneWay}"/>
+                            <Run Text=" resultados"/>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- Reflexo de quina da janela -->
+            <Border Style="{StaticResource GlassEdge}" Margin="28,0"/>
+        </Grid>
+    </Border>
+</Window>

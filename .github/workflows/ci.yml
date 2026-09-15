@@ -1,0 +1,33 @@
+name: CI
+
+# Roda em todo push e em todo pull request.
+#
+# Isto só é possível porque o app não depende mais de rede: enquanto os dados viviam num
+# Supabase de terceiro, metade dos testes escrevia na base de produção de outra pessoa e o CI
+# precisaria da credencial dela. Com o banco em arquivo SQLite, a suíte inteira roda em segundos
+# e sem um único segredo configurado.
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-e-testes:
+    # windows-latest não é preferência: os projetos têm como alvo net8.0-windows e a UI é WPF.
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restaurar
+      run: dotnet restore MacroHelper.sln
+
+    - name: Compilar
+      # Directory.Build.props liga TreatWarningsAsErrors — um warning novo para o build aqui.
+      run: dotnet build MacroHelper.sln -c Release --no-restore
+
+    - name: Testar
+      run: dotnet test MacroHelper.sln -c Release --no-build --verbosity normal

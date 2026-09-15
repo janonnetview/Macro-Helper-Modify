@@ -1,0 +1,131 @@
+﻿<Window x:Class="MacroHelper.UI.Views.MacroPopupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ShowInTaskbar="False"
+        Topmost="True" SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize" Width="380">
+
+    <!-- Sem sombra, como nas outras flutuantes: quem separa o popup do que está atrás é a
+         borda. A sombra do sistema sai no MolduraNativa, chamado no construtor. -->
+    <Border Background="{DynamicResource FloatSurfaceBrush}"
+            BorderBrush="{DynamicResource FloatBorderBrush}"
+            BorderThickness="1" CornerRadius="{StaticResource RadiusXl}">
+        <StackPanel>
+            <!-- Header, também alça de arraste -->
+            <Border Padding="14,11" BorderThickness="0,0,0,1"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Background="{DynamicResource AccentLightBrush}"
+                                BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1"
+                                CornerRadius="{StaticResource RadiusXs}" Padding="11,3">
+                            <TextBlock x:Name="TxtGatilho"
+                                       FontFamily="Consolas" FontSize="12" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentTextBrush}"/>
+                        </Border>
+                        <TextBlock Text=" (selecione)" FontSize="10"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="ESC para fechar" FontSize="9"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Lista -->
+            <ListBox x:Name="ListMacros"
+                     Background="Transparent" BorderThickness="0"
+                     MaxHeight="260"
+                     KeyDown="ListMacros_KeyDown"
+                     MouseLeftButtonUp="ListMacros_MouseLeftButtonUp">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Titulo}" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding Conteudo}" FontSize="10"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           MaxHeight="28" TextTrimming="CharacterEllipsis"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Style="{StaticResource AtalhoBadge}"
+                                    VerticalAlignment="Center" Margin="10,0,0,0">
+                                <TextBlock Text="{Binding Atalho}" Style="{StaticResource AtalhoBadgeText}"
+                                           FontSize="9"/>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="14,9"/>
+                        <Setter Property="Margin" Value="6,2"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Grid>
+                                        <Border x:Name="bg" CornerRadius="{StaticResource RadiusSm}"
+                                                Background="{TemplateBinding Background}"
+                                                BorderThickness="1" BorderBrush="Transparent"/>
+                                        <!-- Mesmo traço de 2px da busca rápida: o item escolhido
+                                             não vira bloco verde em lugar nenhum do app. -->
+                                        <Border x:Name="marca" Width="2" Height="16" CornerRadius="1"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                Opacity="0" Background="{DynamicResource AccentBrush}"/>
+                                        <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bg" Property="Background"
+                                                    Value="{DynamicResource SurfaceGlassBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="bg" Property="Background"
+                                                    Value="{DynamicResource SurfaceGlassActiveBrush}"/>
+                                            <Setter TargetName="bg" Property="BorderBrush"
+                                                    Value="{DynamicResource BorderSubtleBrush}"/>
+                                            <Setter TargetName="marca" Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+
+            <!-- Footer atalhos de teclado -->
+            <!-- O rodapé de teclas fica a 55%: quem usa o gatilho já sabe o que o Enter faz. -->
+            <Border Padding="14,9" Opacity="0.55" BorderThickness="0,1,0,0"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}">
+                <StackPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource KbdChip}" Margin="0,0,4,0">
+                        <TextBlock Text="↑↓" Style="{StaticResource KbdChipText}"/>
+                    </Border>
+                    <TextBlock Text="navegar  " FontSize="9"
+                               Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center"/>
+                    <Border Style="{StaticResource KbdChip}" Margin="0,0,4,0">
+                        <TextBlock Text="Enter" Style="{StaticResource KbdChipText}"/>
+                    </Border>
+                    <TextBlock Text="inserir  " FontSize="9"
+                               Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center"/>
+                    <Border Style="{StaticResource KbdChip}" Margin="0,0,4,0">
+                        <TextBlock Text="Esc" Style="{StaticResource KbdChipText}"/>
+                    </Border>
+                    <TextBlock Text="fechar" FontSize="9"
+                               Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Border>
+</Window>

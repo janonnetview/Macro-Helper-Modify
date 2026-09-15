@@ -1,0 +1,238 @@
+﻿<UserControl x:Class="MacroHelper.UI.Views.VariaveisGlobaisView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+
+    <UserControl.RenderTransform>
+        <TranslateTransform x:Name="PageSlide"/>
+    </UserControl.RenderTransform>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard><Storyboard>
+                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.22"/>
+                <DoubleAnimation Storyboard.TargetName="PageSlide" Storyboard.TargetProperty="Y" From="10" To="0" Duration="0:0:0.22">
+                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard></BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid>
+        <!-- Modal formulário -->
+        <Grid Panel.ZIndex="10">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding MostrarFormulario}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <!-- A cortina encosta na quina de baixo do painel de conteúdo, que é arredondada:
+                 sem o mesmo raio ela pinta dois cantos quadrados para fora da curva. -->
+            <Border Background="#99050810" CornerRadius="{StaticResource RadiusBottomXl}"/>
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Width="440" Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource FloatBorderBrush}"
+                    BorderThickness="1" CornerRadius="{StaticResource RadiusXl}">
+                <StackPanel Margin="28,24">
+                    <Grid Margin="0,0,0,20">
+                        <TextBlock Text="{Binding FormTitulo}" FontSize="16" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <Button HorizontalAlignment="Right" Style="{StaticResource ButtonIconOnly}"
+                                Command="{Binding CancelarFormCommand}" Width="28" Height="28">
+                            <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                       Foreground="{DynamicResource TextMutedBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </Grid>
+
+                    <Border Background="{DynamicResource DangerBgBrush}"
+                            BorderBrush="{DynamicResource DangerBrush}"
+                            BorderThickness="1" CornerRadius="8"
+                            Padding="12,9" Margin="0,0,0,14"
+                            Visibility="{Binding FormErro, Converter={StaticResource NullToVis}}">
+                        <TextBlock Text="{Binding FormErro}"
+                                   Foreground="{DynamicResource DangerBrush}" FontSize="12"/>
+                    </Border>
+
+                    <TextBlock Text="NOME (use como {nome} dentro das macros) *" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource InputStyle}" Height="42"
+                             Text="{Binding FormNome, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,14"/>
+
+                    <TextBlock Text="VALOR" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource InputStyle}" Height="42"
+                             Text="{Binding FormValorPadrao, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,14"/>
+
+                    <TextBlock Text="DESCRIÇÃO (opcional)" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource InputStyle}" Height="42"
+                             Text="{Binding FormDescricao, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,24"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancelar" Style="{StaticResource ButtonSecondary}"
+                                Command="{Binding CancelarFormCommand}"
+                                Margin="0,0,10,0" Width="100"/>
+                        <Button Style="{StaticResource ButtonPrimary}"
+                                Command="{Binding SalvarVariavelCommand}" Width="130">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                           VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                <TextBlock Text="Salvar" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Background="Transparent"
+                    BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    Padding="32,24,32,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Variáveis Globais" Style="{StaticResource PageTitleText}"/>
+                        <TextBlock Text="Valores reutilizáveis (ex: {assinatura}) preenchidos automaticamente em qualquer macro."
+                                   Style="{StaticResource PageSubtitleText}"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Style="{StaticResource ButtonPrimary}"
+                            Command="{Binding NovaVariavelCommand}" Height="38" Padding="16,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                       VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="Nova Variável" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <Border DockPanel.Dock="Top" Margin="28,12,28,0" Style="{StaticResource ToastBorder}"
+                    Visibility="{Binding Mensagem, Converter={StaticResource NullToVis}}">
+                <TextBlock Text="{Binding Mensagem}" Style="{StaticResource ToastTexto}"/>
+            </Border>
+
+            <!-- Recuo no filho, não como Padding: Padding no ScrollViewer recorta a sombra dos cartões (ver DashboardView). -->
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding Variaveis}" Margin="28,14,28,28">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource ListRow}" Padding="18,15">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Background="{DynamicResource AccentLightBrush}" CornerRadius="8"
+                                                    Padding="8,4" Margin="0,0,10,0">
+                                                <TextBlock FontSize="11" FontFamily="Consolas"
+                                                           Foreground="{DynamicResource AccentTextBrush}">
+                                                    <Run Text="{}{"/><Run Text="{Binding Nome}"/><Run Text="}"/>
+                                                </TextBlock>
+                                            </Border>
+                                            <TextBlock FontSize="13" FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="{Binding ValorPadrao}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ValorPadrao}" Value="">
+                                                                <Setter Property="Text" Value="(sem valor padrão)"/>
+                                                                <Setter Property="FontStyle" Value="Italic"/>
+                                                                <Setter Property="FontWeight" Value="Normal"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Descricao}" FontSize="11"
+                                                   Foreground="{DynamicResource TextMutedBrush}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Style="{StaticResource ButtonIconOnly}"
+                                                CommandParameter="{Binding}"
+                                                Command="{Binding DataContext.EditarVariavelCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Width="30" Height="30" Margin="0,0,2,0">
+                                            <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        </Button>
+                                        <Button ToolTip="Excluir" Cursor="Hand"
+                                                Width="30" Height="30" BorderThickness="0" Background="Transparent"
+                                                CommandParameter="{Binding}"
+                                                Command="{Binding DataContext.ExcluirVariavelCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                            <Button.Visibility>
+                                                <MultiBinding Converter="{StaticResource EqualsToVis}" ConverterParameter="invert">
+                                                    <Binding Path="DataContext.ConfirmandoExclusaoId" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    <Binding Path="Id"/>
+                                                </MultiBinding>
+                                            </Button.Visibility>
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="bg" CornerRadius="8" Background="{TemplateBinding Background}">
+                                                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource DangerBgBrush}"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                        <StackPanel Orientation="Horizontal" Margin="2,0,0,0">
+                                            <StackPanel.Visibility>
+                                                <MultiBinding Converter="{StaticResource EqualsToVis}">
+                                                    <Binding Path="DataContext.ConfirmandoExclusaoId" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    <Binding Path="Id"/>
+                                                </MultiBinding>
+                                            </StackPanel.Visibility>
+                                            <TextBlock VerticalAlignment="Center" FontSize="10" Margin="0,0,4,0"
+                                                       Foreground="{DynamicResource TextMutedBrush}"
+                                                       Visibility="{Binding DataContext.UsoVariavelConfirmacao, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource IntToVis}}">
+                                                <Run Text="Usada em "/>
+                                                <Run Text="{Binding DataContext.UsoVariavelConfirmacao, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"/>
+                                                <Run Text=" macro(s)."/>
+                                            </TextBlock>
+                                            <Button Content="Confirmar" Style="{StaticResource ButtonSecondary}"
+                                                    Foreground="{DynamicResource DangerBrush}"
+                                                    CommandParameter="{Binding}"
+                                                    Command="{Binding DataContext.ExcluirVariavelCommand,
+                                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    Height="28" Padding="10,0" FontSize="11" Margin="0,0,4,0"/>
+                                            <Button Style="{StaticResource ButtonIconOnly}"
+                                                    Command="{Binding DataContext.CancelarExclusaoCommand,
+                                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    Width="28" Height="28">
+                                                <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </Grid>
+</UserControl>

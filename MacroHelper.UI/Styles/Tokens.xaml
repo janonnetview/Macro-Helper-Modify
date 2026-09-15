@@ -1,0 +1,89 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!--
+        ══════════════════════════════════════════════════════════════════════════════
+        TOKENS — a régua geométrica do app (não muda com o tema)
+        ══════════════════════════════════════════════════════════════════════════════
+
+        Aqui ficam apenas as decisões que valem igual no claro e no escuro: raio de canto,
+        espessura de borda, escala tipográfica, sombras. A COR mora em Themes/Dark.xaml e
+        Themes/Light.xaml — este arquivo nunca é trocado em tempo de execução.
+
+        Por que fora de /Themes/: o ThemeService troca o dicionário cujo Source contém
+        "/Themes/". Um arquivo de tokens lá dentro entraria nessa busca e poderia ser
+        removido no lugar do tema.
+
+        Sobre o "vidro": o WPF não tem backdrop-filter. O efeito de vidro aqui é composto —
+        um fundo profundo com iluminação ambiente, um filme translúcido por cima (gradiente
+        de branco com alfa muito baixo, mais claro no topo, como luz batendo na quina) e uma
+        borda de 1px também translúcida. É isso que dá profundidade sem custar um blur por
+        quadro. Os brushes desse filme estão nos dicionários de tema, porque o filme é branco
+        no escuro e preto no claro.
+    -->
+
+    <!-- ── RAIO DE CANTO ────────────────────────────────────────────────────────────
+         Escala fechada. Elemento novo escolhe um destes degraus, nunca um número solto. -->
+    <CornerRadius x:Key="RadiusXs">8</CornerRadius>       <!-- etiquetas, kbd, ícones pequenos -->
+    <CornerRadius x:Key="RadiusSm">10</CornerRadius>      <!-- itens de lista, botões-ícone -->
+    <CornerRadius x:Key="RadiusMd">14</CornerRadius>      <!-- inputs, botões, tiles         -->
+    <CornerRadius x:Key="RadiusLg">18</CornerRadius>      <!-- cards                          -->
+    <CornerRadius x:Key="RadiusXl">24</CornerRadius>      <!-- painéis principais             -->
+    <CornerRadius x:Key="RadiusWindow">28</CornerRadius>  <!-- janelas flutuantes             -->
+    <CornerRadius x:Key="RadiusPill">999</CornerRadius>   <!-- só o que é redondo de verdade  -->
+
+    <!--
+        Etiqueta é retângulo de canto arredondado, e não pílula. Uma cápsula deitada com
+        texto dentro destoa de um app inteiro feito de retângulos arredondados: ela puxa a
+        atenção pela forma, não pelo conteúdo.
+
+        O raio 999 ficou reservado ao que é redondo por natureza e não carrega texto: a
+        bolinha de cor das Configurações, o botão-ícone circular da barra lateral e a
+        pastilha de 3px que marca o item ativo.
+    -->
+
+    <!-- Cantos parciais, para superfícies que encostam na borda de um painel -->
+    <CornerRadius x:Key="RadiusTopLg">18,18,0,0</CornerRadius>
+    <CornerRadius x:Key="RadiusBottomLg">0,0,18,18</CornerRadius>
+    <CornerRadius x:Key="RadiusBottomXl">0,0,24,24</CornerRadius>
+    <CornerRadius x:Key="RadiusBottomWindow">0,0,28,28</CornerRadius>
+
+    <!-- ── ESPESSURAS ───────────────────────────────────────────────────────────────
+         Borda de vidro é sempre 1px. Foco não engorda a borda (isso empurra o conteúdo
+         em 1px e a tela "pula"): quem marca o foco é a cor e o anel externo. -->
+    <Thickness x:Key="BorderHairline">1</Thickness>
+    <Thickness x:Key="BorderNone">0</Thickness>
+    <Thickness x:Key="BorderTop">0,1,0,0</Thickness>
+    <Thickness x:Key="BorderBottom">0,0,0,1</Thickness>
+
+    <!-- ── ESPAÇAMENTO ──────────────────────────────────────────────────────────────
+         Base 4. Os recuos de card e painel vivem aqui para que uma tela nova não invente
+         o seu. -->
+    <Thickness x:Key="PadCard">20</Thickness>
+    <Thickness x:Key="PadPanel">26</Thickness>
+    <Thickness x:Key="PadPage">32,26,32,32</Thickness>
+    <Thickness x:Key="PadRow">16,12</Thickness>
+
+    <!-- ── ESCALA TIPOGRÁFICA ───────────────────────────────────────────────────────
+         Seis degraus. O corpo é 13; abaixo de 11 só metadado. -->
+    <sys:Double x:Key="TextXs">10.5</sys:Double>
+    <sys:Double x:Key="TextSm">11.5</sys:Double>
+    <sys:Double x:Key="TextBase">13</sys:Double>
+    <sys:Double x:Key="TextMd">14</sys:Double>
+    <sys:Double x:Key="TextLg">16</sys:Double>
+    <sys:Double x:Key="TextXl">20</sys:Double>
+    <sys:Double x:Key="TextDisplay">30</sys:Double>
+
+    <!-- ── SOMBRAS ───────────────────────────────────────────────────────────────────
+         As sombras NÃO moram aqui: elas estão em Themes/Light.xaml e Themes/Dark.xaml.
+
+         Sombra não é geometria, é luz — e a luz do tema claro não é a do escuro. No escuro
+         um preto denso some no fundo e só dá profundidade; no claro o mesmo preto vira uma
+         faixa cinza em volta do cartão. Por isso o claro usa um azul-ardósia bem diluído,
+         mais aberto e com menos opacidade.
+
+         Quem consome usa DynamicResource (ShadowSoft, ShadowGlass, ShadowFloat), senão a
+         troca de tema não alcançaria a sombra. -->
+
+</ResourceDictionary>

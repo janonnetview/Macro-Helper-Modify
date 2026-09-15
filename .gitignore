@@ -1,0 +1,41 @@
+## .NET / Visual Studio
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+## Publish output / installers
+publish/
+*.msi
+
+## Dumps e relatórios da migração Supabase -> SQLite.
+## Contêm o conteúdo integral das macros (texto de clientes) — nunca versionar.
+dump-*.json
+dump-*.conferencia.txt
+*.importacao.txt
+
+## Test results
+TestResults/
+
+## Logs
+*.log
+
+## Banco SQLite do app. Fica em %AppData%\MacroHelper, mas um banco de teste ou de
+## rascunho não pode acabar versionado: guarda o texto integral das macros.
+*.db
+*.db-shm
+*.db-wal
+
+## Session/credential files that may exist locally during dev/testing
+session.dat
+
+## OS files
+Thumbs.db
+.DS_Store
+
+## Local Claude Code settings (machine-specific, not part of the project)
+.claude/
+
+## Cache do gerador de sprites
+__pycache__/

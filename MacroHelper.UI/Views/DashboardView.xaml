@@ -1,0 +1,435 @@
+﻿<UserControl x:Class="MacroHelper.UI.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+
+    <!--
+        ══════════════════════════════════════════════════════════════════════════════
+        INÍCIO
+        ══════════════════════════════════════════════════════════════════════════════
+
+        A tela tinha seis cores disputando a mesma atenção: tile lilás, tile ciano, tile
+        verde, pílulas coloridas, números de tamanhos diferentes. Agora a leitura é:
+
+            1. o cumprimento (o único texto grande da tela)
+            2. os três números
+            3. as duas listas
+
+        Tudo o mais — ícone, etiqueta, contagem — é cinza. O verde aparece em dois lugares:
+        o nome de quem está usando e o botão "Nova macro".
+
+        Os três números têm o MESMO tamanho de propósito. Antes o "usos hoje" era 46 e os
+        outros 26, o que fazia o menos importante dos três gritar mais alto.
+    -->
+
+    <UserControl.RenderTransform>
+        <TranslateTransform x:Name="PageSlide"/>
+    </UserControl.RenderTransform>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard><Storyboard>
+                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.22"/>
+                <DoubleAnimation Storyboard.TargetName="PageSlide" Storyboard.TargetProperty="Y" From="10" To="0" Duration="0:0:0.22">
+                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard></BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <DockPanel>
+        <!-- O recuo da página é Margin do conteúdo, e não Padding do ScrollViewer.
+                 O ScrollViewer recorta tudo que passa da área de conteúdo, e essa área é
+                 justamente o viewport MENOS o Padding: com o recuo aqui em cima, a faixa
+                 recortada caía exatamente em cima da sombra dos cartões encostados na
+                 borda — o corte reto batia na quina arredondada e virava ponta. Com o
+                 recuo no filho, o retângulo de corte é o viewport inteiro e a sombra
+                 termina onde ela mesma se apaga. -->
+        <ScrollViewer>
+            <StackPanel MaxWidth="1120" HorizontalAlignment="Stretch" Margin="{StaticResource PadPage}">
+
+                <!-- ══════════════ HERÓI ══════════════
+                     É o único painel do app com o vidro um pouco mais evidente: vidro
+                     elevado e o reflexo de 1px na quina. Sem luz de canto: ver o comentário
+                     logo abaixo. -->
+                <Border Style="{StaticResource SectionPanel}" Margin="0,0,0,22" Padding="34,30">
+                    <Grid>
+                        <!--
+                            AQUI NÃO VAI LUZ DE CANTO, e isso é decisão, não esquecimento.
+
+                            Já foram duas radiais entrando pela direita — e a de cima parava
+                            bem atrás do botão "Nova macro", comendo a borda dele. Trocadas por
+                            uma só pela esquerda, ela passou a parar atrás do cumprimento. Em
+                            qualquer canto o resultado é o mesmo: mancha clara no meio de uma
+                            superfície lisa lê como sujeira na tela, não como luz.
+
+                            A profundidade do herói vem do que não é mancha: o vidro elevado,
+                            que já nasce mais claro que os cartões de baixo, e o fio de 1px na
+                            quina de cima (GlassEdge). As luzes de ambiente continuam existindo
+                            onde têm espaço para serem grandes e difusas: na casca da janela.
+                        -->
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <Border Style="{StaticResource Badge}" HorizontalAlignment="Left" Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding DataTexto, Mode=OneWay}" Style="{StaticResource BadgeText}"/>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock FontSize="{StaticResource TextDisplay}" FontFamily="Segoe UI Light"
+                                           Foreground="{DynamicResource TextPrimaryBrush}">
+                                    <Run Text="Olá, "/><Run Text="{Binding NomeUsuario, Mode=OneWay}"
+                                                            FontFamily="Segoe UI Semibold"
+                                                            Foreground="{DynamicResource AccentTextBrush}"/>
+                                </TextBlock>
+                                <TextBlock FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,10,0,0"
+                                           TextWrapping="Wrap" MaxWidth="520">
+                                    <Run Text="Digite "/>
+                                    <InlineUIContainer BaselineAlignment="Center">
+                                        <Border Style="{StaticResource KbdChip}" Margin="0,-2,0,0">
+                                            <TextBlock Text="/atalho" Style="{StaticResource KbdChipText}"/>
+                                        </Border>
+                                    </InlineUIContainer>
+                                    <Run Text=" em qualquer campo do Windows, ou "/>
+                                    <InlineUIContainer BaselineAlignment="Center">
+                                        <Border Style="{StaticResource KbdChip}" Margin="0,-2,0,0">
+                                            <TextBlock Text="Ctrl+Espaço" Style="{StaticResource KbdChipText}"/>
+                                        </Border>
+                                    </InlineUIContainer>
+                                    <Run Text=" para buscar."/>
+                                </TextBlock>
+                            </StackPanel>
+                            <Button Grid.Column="1" Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center"
+                                    Command="{Binding NovaMacroCommand}" Margin="24,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Nova macro" VerticalAlignment="Center" Margin="0,0,9,0"/>
+                                    <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <Border Style="{StaticResource GlassEdge}" Margin="-24,-20,-24,0"/>
+                    </Grid>
+                </Border>
+
+                <!-- ══════════════ NÚMEROS ══════════════
+                     Discretos: cartão de vidro simples, ícone monocromático, número grande,
+                     rótulo cinza. Nada aqui é clicável, então nada aqui reage ao mouse. -->
+                <Grid Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Margin="0,0,9,0" Style="{StaticResource CardStatic}" Padding="22,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource IconTileSmall}"
+                                    VerticalAlignment="Top" Margin="0,2,14,0">
+                                <TextBlock Text="&#xE8F4;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding TotalMacros, Mode=OneWay}" FontSize="28" FontFamily="Segoe UI Semibold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="macros cadastradas" FontSize="11.5"
+                                           Foreground="{DynamicResource TextMutedBrush}" Margin="0,1,0,0"/>
+                                <!-- A variação da semana é metadado: entra em cinza, com a
+                                     setinha em verde para dizer "subiu". -->
+                                <StackPanel Orientation="Horizontal" Margin="0,9,0,0"
+                                            Visibility="{Binding MacrosNovasSemana, Converter={StaticResource IntToVis}}">
+                                    <TextBlock Text="&#xE74A;" FontFamily="Segoe MDL2 Assets" FontSize="8"
+                                               Foreground="{DynamicResource AccentTextBrush}"
+                                               VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <TextBlock FontSize="10.5" Foreground="{DynamicResource TextMutedBrush}">
+                                        <Run Text="+"/><Run Text="{Binding MacrosNovasSemana}"/><Run Text=" esta semana"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Margin="4.5,0" Style="{StaticResource CardStatic}" Padding="22,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource IconTileSmall}"
+                                    VerticalAlignment="Top" Margin="0,2,14,0">
+                                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding UsadasHoje, Mode=OneWay}" FontSize="28" FontFamily="Segoe UI Semibold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="usos hoje" FontSize="11.5"
+                                           Foreground="{DynamicResource TextMutedBrush}" Margin="0,1,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Margin="9,0,0,0" Style="{StaticResource CardStatic}" Padding="22,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource IconTileSmall}"
+                                    VerticalAlignment="Top" Margin="0,2,14,0">
+                                <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding MinutosEconomizados, Mode=OneWay}" FontSize="28" FontFamily="Segoe UI Semibold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="economizados este mês" FontSize="11.5"
+                                           Foreground="{DynamicResource TextMutedBrush}" Margin="0,1,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!--
+                    Lembretes de hoje. O cartão inteiro SOME quando não há nenhum, em vez de
+                    mostrar um estado vazio: o Início já tem um "nada por aqui" (o das tarefas),
+                    e dois vazios lado a lado fazem a tela parecer quebrada num dia tranquilo.
+                -->
+                <Border Style="{StaticResource CardStatic}" Padding="22,20" Margin="0,0,0,18"
+                        Visibility="{Binding Compromissos.Count, Converter={StaticResource IntToVis}}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,16">
+                            <TextBlock Text="Com hora marcada hoje" Style="{StaticResource SectionTitleText}"
+                                       VerticalAlignment="Center"/>
+                            <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                                    Style="{StaticResource ButtonGhost}"
+                                    Content="Ver todos" Command="{Binding VerCompromissosCommand}"/>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Compromissos}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- A hora é o dado principal de um lembrete: é o único
+                                             lugar da linha com accent, e mesmo assim sobre vidro,
+                                             não sobre um bloco verde. -->
+                                        <Border Grid.Column="0" CornerRadius="{StaticResource RadiusXs}"
+                                                Padding="11,5" Margin="0,0,14,0" VerticalAlignment="Center"
+                                                Background="{DynamicResource AccentLightBrush}"
+                                                BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1">
+                                            <TextBlock Text="{Binding HoraTexto}" FontSize="11.5" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource AccentTextBrush}"/>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Titulo}" FontSize="12.5" FontWeight="Medium"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{Binding Local}" FontSize="11"
+                                                       TextTrimming="CharacterEllipsis" Margin="0,2,0,0"
+                                                       Foreground="{DynamicResource TextMutedBrush}"
+                                                       Visibility="{Binding Local, Converter={StaticResource NullToVis}}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- ══════════════ AS DUAS LISTAS ══════════════ -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Margin="0,0,9,0" Style="{StaticResource CardStatic}" Padding="22,20">
+                        <StackPanel MinHeight="130">
+                            <Grid Margin="0,0,0,16">
+                                <TextBlock Text="Macros mais usadas" Style="{StaticResource SectionTitleText}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="ESTE MÊS" Style="{StaticResource EyebrowText}"
+                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding MaisUsadas}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                <TextBlock Text="{Binding Titulo}" FontSize="12.5" FontWeight="Medium"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Style="{StaticResource AtalhoBadgeText}" Margin="0,3,0,0">
+                                                    <Run Text="/"/><Run Text="{Binding Atalho}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <!-- A contagem é metadado, não troféu: pílula cinza. -->
+                                            <Border Grid.Column="1" Style="{StaticResource Badge}"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource BadgeText}">
+                                                    <Run Text="{Binding Total}"/><Run Text=" usos"/>
+                                                </TextBlock>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Border Margin="0,6,0,0" Padding="24,30" Style="{StaticResource EmptyStatePanel}"
+                                    Visibility="{Binding MaisUsadas.Count, Converter={StaticResource IntZeroToVis}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <Border Style="{StaticResource IconTile}">
+                                        <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Nenhuma macro usada este mês" FontSize="12.5" FontWeight="Medium"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                                    <TextBlock Text="Quando você disparar uma macro, ela aparece aqui." FontSize="11"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Tarefas de hoje e atrasadas: o único conteúdo do Início com hora marcada. -->
+                    <Border Grid.Column="1" Margin="9,0,0,0" Style="{StaticResource CardStatic}" Padding="22,20">
+                        <StackPanel MinHeight="130">
+                            <Grid Margin="0,0,0,16">
+                                <TextBlock Text="Hoje e atrasadas" Style="{StaticResource SectionTitleText}"
+                                           VerticalAlignment="Center"/>
+                                <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                                        Style="{StaticResource ButtonGhost}"
+                                        Content="Ver todas" Command="{Binding VerTarefasCommand}"/>
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding Tarefas}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Concluir sem sair do Início. A lista só traz tarefas abertas,
+                                                 então a caixa começa sempre desmarcada. -->
+                                            <CheckBox Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0"
+                                                      ToolTip="Concluir"
+                                                      CommandParameter="{Binding}"
+                                                      Command="{Binding DataContext.ConcluirCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+
+                                            <StackPanel Grid.Column="1">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Titulo}" FontSize="12.5" FontWeight="Medium"
+                                                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                    <Border Margin="9,0,0,0" VerticalAlignment="Center"
+                                                            Background="{DynamicResource DangerBgBrush}"
+                                                            BorderBrush="{DynamicResource DangerBrush}">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border" BasedOn="{StaticResource Badge}">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Setter Property="Padding" Value="8,2"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Prioridade}" Value="Alta">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="Alta" Style="{StaticResource BadgeText}"
+                                                                   Foreground="{DynamicResource DangerBrush}"/>
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                    <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                               VerticalAlignment="Center" Margin="0,0,6,0"
+                                                               Foreground="{DynamicResource TextMutedBrush}"/>
+                                                    <TextBlock FontSize="11" VerticalAlignment="Center"
+                                                               Text="{Binding Prazo, Converter={StaticResource DataAmigavel}}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Prazo, Converter={StaticResource DataVencida}}" Value="True">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+
+                                                    <!-- Lembrete pendente -->
+                                                    <StackPanel Orientation="Horizontal" Margin="14,0,0,0"
+                                                                Visibility="{Binding TemLembretePendente, Converter={StaticResource BoolToVisConv}}">
+                                                        <TextBlock Text="&#xEA8F;" FontFamily="Segoe MDL2 Assets" FontSize="9.5"
+                                                                   Foreground="{DynamicResource AccentTextBrush}"
+                                                                   VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <TextBlock FontSize="11" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource AccentTextBrush}"
+                                                                   Text="{Binding Lembrete, Converter={StaticResource DataAmigavel}, ConverterParameter=hora}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Style="{StaticResource MetaText}" Margin="0,2,0,0"
+                                       Visibility="{Binding TarefasOcultas, Converter={StaticResource IntToVis}}">
+                                <Run Text="e mais "/><Run Text="{Binding TarefasOcultas, Mode=OneWay}"/><Run Text=" em Tarefas"/>
+                            </TextBlock>
+
+                            <Border Margin="0,6,0,0" Padding="24,30" Style="{StaticResource EmptyStatePanel}"
+                                    Visibility="{Binding Tarefas.Count, Converter={StaticResource IntZeroToVis}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <Border Style="{StaticResource IconTile}">
+                                        <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                                   Foreground="{DynamicResource AccentTextBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Nada vencendo hoje" FontSize="12.5" FontWeight="Medium"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                                    <TextBlock Text="Tarefas com prazo para hoje ou já vencido aparecem aqui." FontSize="11"
+                                               TextAlignment="Center" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

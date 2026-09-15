@@ -1,0 +1,65 @@
+﻿{
+  "Relogio": "virtual controlado, n\u00E3o reprodu\u00E7\u00E3o em tempo real",
+  "Quadros": [
+    {
+      "Arquivo": "R01-00-00s-antes.png",
+      "Segundos": 0,
+      "Fase": "antes",
+      "Corpo": null
+    },
+    {
+      "Arquivo": "R01-01-01s-entrada-local.png",
+      "Segundos": 1,
+      "Fase": "entrada-local",
+      "Corpo": "283,663,64,64"
+    },
+    {
+      "Arquivo": "R01-02-02s-andar.png",
+      "Segundos": 2,
+      "Fase": "andar",
+      "Corpo": "323,663,64,64"
+    },
+    {
+      "Arquivo": "R01-03-04s-parar.png",
+      "Segundos": 4,
+      "Fase": "parar",
+      "Corpo": "403,663,64,64"
+    },
+    {
+      "Arquivo": "R01-04-06s-abrir-papel-proposto.png",
+      "Segundos": 6,
+      "Fase": "abrir-papel-proposto",
+      "Corpo": "403,663,64,64"
+    },
+    {
+      "Arquivo": "R01-05-09s-ler-proposto.png",
+      "Segundos": 9,
+      "Fase": "ler-proposto",
+      "Corpo": "403,663,64,64"
+    },
+    {
+      "Arquivo": "R01-06-12s-guardar-proposto.png",
+      "Segundos": 12,
+      "Fase": "guardar-proposto",
+      "Corpo": "403,663,64,64"
+    },
+    {
+      "Arquivo": "R01-07-14s-sair.png",
+      "Segundos": 14,
+      "Fase": "sair",
+      "Corpo": "323,663,64,64"
+    },
+    {
+      "Arquivo": "R01-08-15s-fim-do-percurso.png",
+      "Segundos": 15,
+      "Fase": "fim-do-percurso",
+      "Corpo": "283,663,64,64"
+    },
+    {
+      "Arquivo": "R01-09-16s-oculto.png",
+      "Segundos": 16,
+      "Fase": "oculto",
+      "Corpo": null
+    }
+  ]
+}

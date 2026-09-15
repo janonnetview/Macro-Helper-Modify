@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="MacroHelper.UI.Views.PaginaOcultaView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf">
+
+    <!--
+        A página que não aparece em lugar nenhum da interface: sem botão, sem item de barra
+        lateral, sem menu. Só Ctrl+Shift+F (com o app na frente) e Ctrl+Alt+Shift+F (de
+        qualquer lugar do Windows) chegam aqui, e a mesma tecla volta para a página anterior.
+
+        Ela mora DENTRO da janela principal, na mesma célula da grade do roteador de páginas, e
+        só troca de Visibility. Nunca é recriada: é isso que faz voltar exatamente no ponto em
+        que se estava, e é o que mantém a música tocando quando se sai daqui — página escondida
+        no Chromium é aba em segundo plano, e aba em segundo plano continua tocando.
+
+        Player web, e não o programa instalado. O programa tocaria também, mas apareceria como
+        aplicativo aberto no Windows durante a abertura, e existir como processo já basta para
+        um medidor de produtividade contar. Aqui não existe processo do Spotify nenhum: o que
+        roda é o navegador que o app já usa na página do Manual SQL.
+    -->
+
+    <Grid Background="{DynamicResource SurfaceBrush}">
+        <TextBlock x:Name="Recado" Text="Abrindo…"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   TextAlignment="Center" TextWrapping="Wrap" MaxWidth="420"
+                   FontSize="{StaticResource TextSm}"
+                   Foreground="{DynamicResource TextMutedBrush}"/>
+
+        <!-- Escondida até terminar de iniciar: sem isso, o primeiro quadro é um retângulo
+             branco no meio do app escuro. -->
+        <wv2:WebView2 x:Name="Web" Visibility="Collapsed"/>
+    </Grid>
+</UserControl>

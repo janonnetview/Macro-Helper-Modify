@@ -1,0 +1,262 @@
+<Window x:Class="MacroHelper.UI.Views.CompromissoFlutuanteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:MacroHelper.UI.Controls"
+        xmlns:h="clr-namespace:MacroHelper.UI.Helpers"
+        Width="470" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" Topmost="True"
+        ShowInTaskbar="False" ResizeMode="NoResize"
+        WindowStartupLocation="Manual"
+        UseLayoutRounding="True"
+        PreviewKeyDown="Window_PreviewKeyDown">
+
+    <Window.Resources>
+        <!-- Os mesmos botões da janela de tarefa, e pela mesma razão: o ButtonPrimary do
+             App.xaml carrega um DropShadowEffect permanente, e qualquer Effect desliga o
+             ClearType do texto dentro dele — num botão pequeno isso aparece como borrão. -->
+        <Style x:Key="BotaoLembrete" TargetType="Button">
+            <Setter Property="FontSize"         Value="11.5"/>
+            <Setter Property="FontWeight"       Value="SemiBold"/>
+            <Setter Property="Cursor"           Value="Hand"/>
+            <Setter Property="Height"           Value="30"/>
+            <Setter Property="Padding"          Value="16,0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background"       Value="Transparent"/>
+            <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" CornerRadius="8" SnapsToDevicePixels="True"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                BorderThickness="1" BorderBrush="{DynamicResource BorderStrongBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background"
+                                        Value="{DynamicResource SurfaceElevatedBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bg" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BotaoLembretePrimario" TargetType="Button" BasedOn="{StaticResource BotaoLembrete}">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}"/>
+            <Setter Property="Padding"    Value="20,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" CornerRadius="8" SnapsToDevicePixels="True"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background"
+                                        Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bg" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RotuloCampo" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="9.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,5"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Sem sombra, aqui e nas outras flutuantes: quem separa a janela do que está atrás é a
+         borda do cartão. A sombra do sistema sai no MolduraNativa, chamado no construtor. -->
+    <Border CornerRadius="{StaticResource RadiusWindow}"
+            Background="{DynamicResource FloatSurfaceBrush}"
+            BorderBrush="{DynamicResource FloatBorderBrush}" BorderThickness="1">
+        <StackPanel>
+
+            <!-- Também é a alça de arraste: clique no checkbox, no título e no fechar continuam
+                 funcionando normal, porque marcam o evento como tratado antes de chegar aqui. -->
+            <Border Padding="18,13,12,11" BorderThickness="0,0,0,1"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Marcar como feito daqui também: quem abriu o lembrete muitas vezes só
+                         queria riscá-lo. Marcar cala os avisos que ainda não saíram. -->
+                    <Button x:Name="BtnFeito" Grid.Column="0" Click="BtnFeito_Click"
+                            Width="20" Height="20" Margin="0,0,11,0" Cursor="Hand"
+                            Background="Transparent" BorderThickness="0"
+                            ToolTip="Marcar como feito / voltar para a lista">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="caixa" Width="18" Height="18" CornerRadius="8"
+                                        BorderThickness="1.5" SnapsToDevicePixels="True"
+                                        Background="Transparent"
+                                        BorderBrush="{DynamicResource BorderStrongBrush}">
+                                    <TextBlock x:Name="tique" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="9" Foreground="White" Visibility="Collapsed"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
+                                        <Setter TargetName="caixa" Property="Background"  Value="{DynamicResource SuccessBrush}"/>
+                                        <Setter TargetName="caixa" Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                        <Setter TargetName="tique" Property="Visibility"  Value="Visible"/>
+                                    </DataTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <TextBox x:Name="TxtTitulo" Grid.Column="1"
+                             Background="Transparent" BorderThickness="0" Padding="0"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             CaretBrush="{DynamicResource AccentBrush}"
+                             FontSize="15" FontWeight="SemiBold"
+                             VerticalContentAlignment="Center"/>
+
+                    <Button Grid.Column="2" Click="BtnFechar_Click"
+                            Width="28" Height="28" Cursor="Hand"
+                            Background="Transparent" BorderThickness="0"
+                            ToolTip="Fechar (Esc)">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bg" CornerRadius="8" SnapsToDevicePixels="True"
+                                        Background="{TemplateBinding Background}">
+                                    <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bg" Property="Background"
+                                                Value="{DynamicResource SurfaceElevatedBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <StackPanel Margin="18,14,18,4">
+
+                <!-- Dia e hora primeiro, e não as observações: é o campo que define o que
+                     este item é. Sem ele não há aviso nenhum a dar. -->
+                <TextBlock Text="QUANDO" Style="{StaticResource RotuloCampo}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                    <c:SeletorDeData x:Name="CampoData" Margin="0,0,8,0"/>
+                    <Grid Width="76" Height="38">
+                        <TextBox x:Name="TxtHora" Style="{StaticResource InputStyle}"
+                                 MaxLength="5" h:MascaraTexto.Formato="Hora"/>
+                        <TextBlock Text="hh:mm" FontSize="13" IsHitTestVisible="False"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   VerticalAlignment="Center" Margin="13,0,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=TxtHora}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </StackPanel>
+
+                <TextBlock Text="ONDE / COM QUEM" Style="{StaticResource RotuloCampo}"/>
+                <TextBox x:Name="TxtLocal" Style="{StaticResource InputStyle}" Height="36" Margin="0,0,0,14"/>
+
+                <!--
+                    O Tag guarda os MINUTOS de antecedência como texto, e o code-behind converte.
+                    Vazio é "não avisar". Mesma escolha do combo de recorrência da tarefa: por
+                    índice seria mais curto e quebraria em silêncio no dia em que alguém
+                    reordenasse esta lista.
+                -->
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                        <TextBlock Text="AVISAR COM FOLGA" Style="{StaticResource RotuloCampo}"/>
+                        <ComboBox x:Name="CmbAvisoFolga" Height="32" SelectedIndex="0">
+                            <ComboBoxItem Content="Não avisar"     Tag=""/>
+                            <ComboBoxItem Content="3 horas antes"  Tag="180"/>
+                            <ComboBoxItem Content="1 dia antes"    Tag="1440"/>
+                            <ComboBoxItem Content="2 dias antes"   Tag="2880"/>
+                            <ComboBoxItem Content="1 semana antes" Tag="10080"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="AVISAR EM CIMA DA HORA" Style="{StaticResource RotuloCampo}"/>
+                        <ComboBox x:Name="CmbAvisoHora" Height="32" SelectedIndex="0">
+                            <ComboBoxItem Content="Não avisar"   Tag=""/>
+                            <ComboBoxItem Content="Na hora"      Tag="0"/>
+                            <ComboBoxItem Content="10 min antes" Tag="10"/>
+                            <ComboBoxItem Content="30 min antes" Tag="30"/>
+                            <ComboBoxItem Content="1 hora antes" Tag="60"/>
+                            <ComboBoxItem Content="2 horas antes" Tag="120"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="OBSERVAÇÕES" Style="{StaticResource RotuloCampo}"/>
+                <TextBox x:Name="TxtObservacoes" MinHeight="48" MaxHeight="120" Margin="0,0,0,4"
+                         AcceptsReturn="True" AcceptsTab="False" TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto"
+                         Background="Transparent" BorderThickness="0" Padding="0"
+                         Foreground="{DynamicResource TextSecondaryBrush}"
+                         CaretBrush="{DynamicResource AccentBrush}"
+                         FontSize="12.5" VerticalContentAlignment="Top"/>
+            </StackPanel>
+
+            <Border Padding="14,10" Margin="0,10,0,0" BorderThickness="0,1,0,0"
+                    BorderBrush="{DynamicResource BorderStrongBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Apagar fica longe do Salvar e pede um segundo clique. -->
+                    <Button x:Name="BtnApagar" Grid.Column="0" Content="Apagar"
+                            Click="BtnApagar_Click" Style="{StaticResource BotaoLembrete}"
+                            Padding="12,0" Foreground="{DynamicResource DangerBrush}"/>
+
+                    <c:LinhaDeEstado x:Name="Estado" Grid.Column="1"
+                                    Margin="12,0" FontSize="9.5"
+                                    VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="2" Content="Salvar" Click="BtnSalvar_Click"
+                            Style="{StaticResource BotaoLembretePrimario}"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </Border>
+</Window>

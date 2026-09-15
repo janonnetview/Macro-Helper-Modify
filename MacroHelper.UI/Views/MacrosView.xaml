@@ -1,0 +1,877 @@
+﻿<UserControl x:Class="MacroHelper.UI.Views.MacrosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MacroHelper.UI.ViewModels"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <!-- Tema do menu "Mais ações" (o WPF padrão não segue o tema claro/escuro do app) -->
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="{DynamicResource PopupBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- Fade + slide ao entrar -->
+    <UserControl.RenderTransform>
+        <TranslateTransform x:Name="PageSlide"/>
+    </UserControl.RenderTransform>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                        From="0" To="1" Duration="0:0:0.22"/>
+                    <DoubleAnimation Storyboard.TargetName="PageSlide"
+                        Storyboard.TargetProperty="Y"
+                        From="10" To="0" Duration="0:0:0.22">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid>
+        <!-- PAINEL FORMULÁRIO (slide-in lateral) -->
+        <Grid Panel.ZIndex="10">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding MostrarFormulario}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+
+            <!-- A cortina encosta na quina de baixo do painel de conteúdo, que é arredondada:
+                 sem o mesmo raio ela pinta dois cantos quadrados para fora da curva. -->
+            <Border Background="#99050810" CornerRadius="{StaticResource RadiusBottomXl}" MouseLeftButtonDown="Overlay_Click"/>
+
+            <!-- A gaveta é opaca de propósito: ela cobre a lista, e vidro aqui deixaria dois
+                 textos sobrepostos. O que a faz pertencer ao sistema é o canto arredondado do
+                 lado que aparece e a sombra difusa contra o conteúdo. -->
+            <Border HorizontalAlignment="Right" Width="520"
+                    Background="{DynamicResource SurfaceBrush}"
+                    BorderThickness="1,0,0,0"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    CornerRadius="{StaticResource RadiusXl}"
+                    Effect="{DynamicResource ShadowFloat}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="PainelFormulario" Margin="32,28" DataContext="{Binding FormularioAtual}"
+                                DataContextChanged="PainelFormulario_DataContextChanged">
+
+                        <!-- Header -->
+                        <Grid Margin="0,0,0,24">
+                            <StackPanel>
+                                <TextBlock Text="{Binding TituloFormulario}"
+                                           FontSize="20" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,3,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="Preencha os dados da nova macro."/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEdicao}" Value="True">
+                                                    <Setter Property="Text" Value="Atualize os dados da macro."/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                <Button Command="{Binding AbrirHistoricoCommand}"
+                                        Style="{StaticResource ButtonIconOnly}" Width="36" Height="36"
+                                        ToolTip="Ver histórico de versões"
+                                        Visibility="{Binding IsEdicao, Converter={StaticResource BoolToVis}}"
+                                        Margin="0,0,4,0">
+                                    <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Button>
+                                <Button Command="{Binding CancelarCommand}"
+                                        Style="{StaticResource ButtonIconOnly}" Width="36" Height="36">
+                                    <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Histórico de versões -->
+                        <Border Background="{DynamicResource SurfaceGlassBrush}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}"
+                                BorderThickness="1" CornerRadius="10"
+                                Padding="14,12" Margin="0,0,0,18">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MostrarHistorico}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel>
+                                <Grid Margin="0,0,0,10">
+                                    <TextBlock Text="Histórico de versões" FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <Button HorizontalAlignment="Right" Style="{StaticResource ButtonIconOnly}"
+                                            Command="{Binding FecharHistoricoCommand}" Width="24" Height="24">
+                                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                   Foreground="{DynamicResource TextMutedBrush}"/>
+                                    </Button>
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding Historico}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Titulo}" FontSize="12" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                    <TextBlock Text="{Binding DataModificacao, StringFormat=dd/MM/yyyy HH:mm}"
+                                                               FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
+                                                </StackPanel>
+                                                <Button Grid.Column="1" Content="Restaurar"
+                                                        Style="{StaticResource ButtonSecondary}"
+                                                        CommandParameter="{Binding}"
+                                                        Command="{Binding DataContext.RestaurarVersaoCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=ScrollViewer}}"
+                                                        Width="90" Height="30" FontSize="11"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="Nenhuma versão anterior salva." FontSize="12"
+                                           Foreground="{DynamicResource TextMutedBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Historico.Count}" Value="0">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Erro -->
+                        <Border Background="{DynamicResource DangerBgBrush}"
+                                BorderBrush="{DynamicResource DangerBrush}"
+                                BorderThickness="1" CornerRadius="10"
+                                Padding="14,10" Margin="0,0,0,18"
+                                Visibility="{Binding ErroMensagem, Converter={StaticResource NullToVis}}">
+                            <TextBlock Text="{Binding ErroMensagem}"
+                                       Foreground="{DynamicResource DangerBrush}"
+                                       FontSize="12" TextWrapping="Wrap"/>
+                        </Border>
+
+                        <!-- Aviso de possível duplicata -->
+                        <Border Background="{DynamicResource WarningBgBrush}"
+                                BorderBrush="{DynamicResource WarningBrush}"
+                                BorderThickness="1" CornerRadius="10"
+                                Padding="14,10" Margin="0,0,0,18"
+                                Visibility="{Binding AvisoDuplicata, Converter={StaticResource NullToVis}}">
+                            <TextBlock Text="{Binding AvisoDuplicata}"
+                                       Foreground="{DynamicResource WarningBrush}"
+                                       FontSize="12" TextWrapping="Wrap"/>
+                        </Border>
+
+                        <!-- Atalho -->
+                        <TextBlock Text="ATALHO *" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                        <TextBox Style="{StaticResource InputStyle}" Height="40"
+                                 Text="{Binding Atalho, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,0,4"/>
+                        <TextBlock Text="Minúsculas com hífens. Ex: chamado-recebido"
+                                   FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
+                                   FontFamily="Consolas"
+                                   Margin="0,0,0,18"/>
+
+                        <!-- Título -->
+                        <TextBlock Text="TÍTULO *" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                        <TextBox Style="{StaticResource InputStyle}" Height="40"
+                                 Text="{Binding Titulo, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,0,18"/>
+
+                        <!-- Categoria -->
+                        <TextBlock Text="CATEGORIA" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding Categorias}"
+                                  SelectedValuePath="Id"
+                                  SelectedValue="{Binding CategoriaId}"
+                                  Height="40" Margin="0,0,0,18"
+                                  Background="{DynamicResource InputBgBrush}"
+                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                  BorderBrush="{DynamicResource InputBorderBrush}"
+                                  FontSize="13">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Nome}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <!-- Conteúdo -->
+                        <Grid Margin="0,0,0,6">
+                            <TextBlock Text="CONTEÚDO *" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextMutedBrush}"/>
+                            <Button HorizontalAlignment="Right" Style="{StaticResource ButtonIconOnly}"
+                                    Width="22" Height="22" ToolTip="Buscar e substituir"
+                                    Click="BtnBuscarSubstituir_Click">
+                                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                           Foreground="{DynamicResource TextMutedBrush}"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- Barra de busca e substituição -->
+                        <Border x:Name="PainelBuscaSubstituicao" Visibility="Collapsed"
+                                Background="{DynamicResource SurfaceGlassBrush}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                                CornerRadius="10" Padding="10,8" Margin="0,0,0,6">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="TxtBuscar" Style="{StaticResource InputStyle}" Height="32"
+                                             TextChanged="TxtBuscar_TextChanged"/>
+                                    <TextBlock x:Name="TxtContagemBusca" Grid.Column="1" FontSize="11"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               VerticalAlignment="Center" Margin="8,0,2,0"/>
+                                </Grid>
+                                <TextBox x:Name="TxtSubstituir" Style="{StaticResource InputStyle}" Height="32"
+                                         Margin="0,0,0,8"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Anterior" Style="{StaticResource ButtonSecondary}"
+                                            Width="80" Height="30" FontSize="11" Margin="0,0,6,0"
+                                            Click="BtnBuscarAnterior_Click"/>
+                                    <Button Content="Próximo" Style="{StaticResource ButtonSecondary}"
+                                            Width="80" Height="30" FontSize="11" Margin="0,0,6,0"
+                                            Click="BtnBuscarProximo_Click"/>
+                                    <Button Content="Substituir" Style="{StaticResource ButtonSecondary}"
+                                            Width="86" Height="30" FontSize="11" Margin="0,0,6,0"
+                                            Click="BtnSubstituir_Click"/>
+                                    <Button Content="Substituir tudo" Style="{StaticResource ButtonPrimary}"
+                                            Width="116" Height="30" FontSize="11"
+                                            Click="BtnSubstituirTudo_Click"/>
+                                    <Button HorizontalAlignment="Right" Style="{StaticResource ButtonIconOnly}"
+                                            Width="28" Height="28" Margin="6,0,0,0"
+                                            Click="BtnFecharBusca_Click">
+                                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                   Foreground="{DynamicResource TextMutedBrush}"/>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border BorderBrush="{DynamicResource InputBorderBrush}"
+                                Background="{DynamicResource InputBgBrush}"
+                                BorderThickness="1" CornerRadius="10">
+                            <Grid Height="200">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" ClipToBounds="True" Margin="0,12,0,12"
+                                        BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,1,0">
+                                    <Canvas x:Name="CanvasNumerosLinha"/>
+                                </Border>
+                                <TextBox x:Name="TxtConteudo" Grid.Column="1"
+                                         BorderThickness="0" Background="Transparent"
+                                         TextWrapping="Wrap"
+                                         AcceptsReturn="True" AcceptsTab="True"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Foreground="{DynamicResource TextPrimaryBrush}"
+                                         CaretBrush="{DynamicResource AccentBrush}"
+                                         FontFamily="Consolas" FontSize="13" Padding="8,12,12,12"
+                                         Text="{Binding Conteudo, UpdateSourceTrigger=PropertyChanged}"
+                                         TextChanged="TxtConteudo_TextChanged"
+                                         SizeChanged="TxtConteudo_SizeChanged"
+                                         Loaded="TxtConteudo_Loaded"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Dica de variáveis -->
+                        <Border Background="{DynamicResource SurfaceGlassBrush}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}"
+                                BorderThickness="1"
+                                CornerRadius="10" Padding="12,8" Margin="0,6,0,18">
+                            <WrapPanel>
+                                <TextBlock Text="Variáveis: " FontSize="11"
+                                           Foreground="{DynamicResource TextMutedBrush}"/>
+                                <TextBlock Text="{}{nome}" FontFamily="Consolas" FontSize="11"
+                                           Foreground="{DynamicResource AccentTextBrush}" Margin="0,0,6,0"/>
+                                <TextBlock Text="{}{data}" FontFamily="Consolas" FontSize="11"
+                                           Foreground="{DynamicResource AccentTextBrush}" Margin="0,0,6,0"/>
+                                <TextBlock Text="{}{hora}" FontFamily="Consolas" FontSize="11"
+                                           Foreground="{DynamicResource AccentTextBrush}" Margin="0,0,6,0"/>
+                                <TextBlock Text="{}{usuario}" FontFamily="Consolas" FontSize="11"
+                                           Foreground="{DynamicResource AccentTextBrush}"/>
+                            </WrapPanel>
+                        </Border>
+
+                        <!-- Realce: variáveis e condicionais detectados no texto digitado -->
+                        <Border Background="{DynamicResource SurfaceGlassBrush}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}"
+                                BorderThickness="1"
+                                CornerRadius="10" Padding="12,8" Margin="0,-12,0,18"
+                                Visibility="{Binding HaTokensDetectados, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <WrapPanel Margin="0,0,0,4"
+                                           Visibility="{Binding VariaveisNoConteudo.Count, Converter={StaticResource IntToVis}}">
+                                    <TextBlock Text="Detectadas nesta macro: " FontSize="11"
+                                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,4,2"/>
+                                    <ItemsControl ItemsSource="{Binding VariaveisNoConteudo}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{DynamicResource AccentLightBrush}" CornerRadius="8"
+                                                        Padding="6,2" Margin="0,0,4,2">
+                                                    <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="10"
+                                                               FontWeight="Bold" Foreground="{DynamicResource AccentTextBrush}"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+        <!-- Atalho de teclado -->
+                        <TextBlock Text="ATALHO DE TECLADO (OPCIONAL)" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                        <TextBox Style="{StaticResource InputStyle}" Height="40" MaxLength="1"
+                                 Text="{Binding AtalhoTecla, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,0,4"/>
+                        <TextBlock Text="Um dígito de 1 a 9. Insere via Ctrl+Alt+dígito."
+                                   FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
+                                   FontFamily="Consolas"
+                                   Margin="0,0,0,18"/>
+
+                        <!-- Imagem anexada (ex: assinatura) -->
+                        <TextBlock Text="IMAGEM (OPCIONAL)" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                        <Grid Margin="0,0,0,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Style="{StaticResource ButtonSecondary}"
+                                    Command="{Binding ColarImagemCommand}" HorizontalAlignment="Left"
+                                    Height="36" Padding="14,0">
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="Colar imagem da área de transferência"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding TemImagem}" Value="True">
+                                                    <Setter Property="Text" Value="Imagem anexada. Colar para substituir"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Button>
+                            <Button Grid.Column="1" Style="{StaticResource ButtonIconOnly}"
+                                    Command="{Binding RemoverImagemCommand}"
+                                    Visibility="{Binding TemImagem, Converter={StaticResource BoolToVis}}"
+                                    Margin="8,0,0,0" Width="36" Height="36" ToolTip="Remover imagem">
+                                <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- Ativo -->
+                        <Border Background="{DynamicResource SurfaceGlassBrush}"
+                                BorderBrush="{DynamicResource BorderStrongBrush}"
+                                BorderThickness="1" CornerRadius="10"
+                                Padding="14,12" Margin="0,0,0,16">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Macro ativa" FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="Macros inativas não aparecem nas sugestões."
+                                               FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                          IsChecked="{Binding Ativo}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Botões ação -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="1"/>
+                            <Button Grid.Column="2" Content="Cancelar"
+                                    Style="{StaticResource ButtonSecondary}"
+                                    Command="{Binding CancelarCommand}"
+                                    Margin="0,0,10,0" Width="100"/>
+                            <Button Grid.Column="3" Style="{StaticResource ButtonPrimary}"
+                                    Command="{Binding SalvarCommand}" Width="130">
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="Salvar macro"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSaving}" Value="True">
+                                                    <Setter Property="Text" Value="Salvando..."/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <DockPanel>
+            <!-- Cabeçalho -->
+            <Border DockPanel.Dock="Top"
+                    Background="Transparent"
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    Padding="32,24,32,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Macros" Style="{StaticResource PageTitleText}"/>
+                        <TextBlock Style="{StaticResource PageSubtitleText}">
+                            <Run Text="{Binding Macros.Count, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <Run Text=" registros · organize, dispare e versione"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <!-- Grupo segmentado: um trilho de vidro com os botões dentro. É o que
+                         diz "estes três pertencem juntos" sem desenhar três caixas. -->
+                    <Border CornerRadius="{StaticResource RadiusMd}" BorderThickness="1" Padding="2" VerticalAlignment="Center"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            Background="{DynamicResource SurfaceGlassBrush}" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource ToolbarIconButton}"
+                                Command="{Binding ToggleSomenteFavoritosCommand}"
+                                ToolTip="Somente favoritos"
+                                Background="Transparent" BorderThickness="0"
+                                Width="32" Height="32" Margin="0,0,2,0">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="&#xE734;"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SomenteFavoritos}" Value="True">
+                                                <Setter Property="Text" Value="&#xE735;"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Button>
+                        <Button Style="{StaticResource ToolbarIconButton}"
+                                Command="{Binding ToggleMostrarArquivadasCommand}"
+                                ToolTip="Mostrar macros arquivadas"
+                                Background="Transparent" BorderThickness="0"
+                                Width="32" Height="32" Margin="0,0,2,0">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="&#xE7B8;"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding MostrarArquivadas}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Button>
+                    </StackPanel>
+                    </Border>
+
+                    <Border CornerRadius="{StaticResource RadiusMd}" BorderThickness="1" Padding="2" VerticalAlignment="Center"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            Background="{DynamicResource SurfaceGlassBrush}" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource ToolbarIconButton}"
+                                Background="Transparent" BorderThickness="0"
+                                ToolTip="Importar macros (JSON)"
+                                Command="{Binding ImportarJsonCommand}"
+                                Width="32" Height="32" Margin="0,0,2,0">
+                            <TextBlock Text="&#xE8B5;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        <Button Style="{StaticResource ToolbarIconButton}"
+                                Background="Transparent" BorderThickness="0"
+                                ToolTip="Importar macros (CSV/Excel exportado como CSV)"
+                                Command="{Binding ImportarCsvCommand}"
+                                Width="32" Height="32" Margin="0,0,2,0">
+                            <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        <Button Style="{StaticResource ToolbarIconButton}"
+                                Background="Transparent" BorderThickness="0"
+                                ToolTip="Exportar macros (JSON)"
+                                Command="{Binding ExportarJsonCommand}"
+                                Width="32" Height="32">
+                            <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        </StackPanel>
+                    </Border>
+                        <Button Style="{StaticResource ButtonPrimary}"
+                                Command="{Binding NovaMacroCommand}"
+                                Height="38" Padding="16,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                <TextBlock Text="Nova Macro" VerticalAlignment="Center" FontSize="13"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Busca e filtros -->
+            <Border DockPanel.Dock="Top"
+                    Background="Transparent"
+                    Padding="28,12,28,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="180"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Campo de busca com ícone dentro: o InputStyle não cabe (ele não tem
+                         onde pôr a lupa), então o desenho é repetido à mão — mesmo raio, mesmo
+                         fundo rebaixado, mesma borda. -->
+                    <Border BorderBrush="{DynamicResource InputBorderBrush}"
+                            BorderThickness="1" CornerRadius="{StaticResource RadiusMd}"
+                            Background="{DynamicResource InputBgBrush}"
+                            Margin="0,0,10,0" Height="40">
+                        <Grid>
+                            <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="13" Margin="12,0,0,0"
+                                       VerticalAlignment="Center" HorizontalAlignment="Left"
+                                       Foreground="{DynamicResource TextMutedBrush}"/>
+                            <TextBox Background="Transparent" BorderThickness="0"
+                                     Foreground="{DynamicResource TextPrimaryBrush}"
+                                     CaretBrush="{DynamicResource AccentBrush}"
+                                     FontSize="13" Padding="36,0,12,0"
+                                     VerticalContentAlignment="Center"
+                                     Text="{Binding TermoBusca, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="Pesquisar macros..." FontSize="12"
+                                       Foreground="{DynamicResource TextMutedBrush}"
+                                       Margin="38,0,0,0" VerticalAlignment="Center"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding TermoBusca}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding Categorias}"
+                              SelectedItem="{Binding CategoriaFiltro}"
+                              Height="40"
+                              Background="{DynamicResource InputBgBrush}"
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              BorderBrush="{DynamicResource InputBorderBrush}"
+                              FontSize="13"/>
+                </Grid>
+            </Border>
+
+            <!-- Loading -->
+            <Border DockPanel.Dock="Top" Padding="28,4"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE9F5;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,6,0"/>
+                    <TextBlock Text="Carregando..." FontSize="12"
+                               Foreground="{DynamicResource TextMutedBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Estado vazio -->
+            <Border DockPanel.Dock="Top" Padding="28,60">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Macros.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel HorizontalAlignment="Center">
+                    <!-- Ícone geométrico sem emoji -->
+                    <Border Width="64" Height="64" CornerRadius="{StaticResource RadiusXl}"
+                            Background="{DynamicResource SurfaceGlassBrush}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            HorizontalAlignment="Center" Margin="0,0,0,18">
+                        <TextBlock Text="&#xE8A1;" FontFamily="Segoe MDL2 Assets" FontSize="28"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Nenhuma macro encontrada" FontSize="15" FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                    <TextBlock Text='Clique em "Nova Macro" para começar.'
+                               FontSize="13" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextMutedBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Lista -->
+            <!-- Recuo no filho, não como Padding: Padding no ScrollViewer recorta a sombra dos cartões (ver DashboardView). -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Macros}" Margin="28,4,28,28">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!--
+                                A linha deixou de ser um cartão com sombra, barra verde na
+                                lateral e quatro etiquetas ACIMA do nome. A ordem agora é a da
+                                leitura — nome, resumo, e só então o metadado (atalho,
+                                categoria, data). O desenho da faixa vem do ListRow, igual ao
+                                de todas as outras listas do app.
+                            -->
+                            <Border Style="{StaticResource ListRow}" Padding="18,15">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Conteúdo -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,14,0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                            <TextBlock Text="{Binding Titulo}"
+                                                       FontSize="14" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"/>
+                                            <!-- Arquivada muda o que a macro FAZ (ela para de
+                                                 disparar), então continua sendo aviso e continua
+                                                 tendo cor. -->
+                                            <Border Margin="10,0,0,0" VerticalAlignment="Center"
+                                                    Background="{DynamicResource WarningBgBrush}"
+                                                    BorderBrush="{DynamicResource WarningBrush}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border" BasedOn="{StaticResource Badge}">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Setter Property="Padding" Value="9,2"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Ativo}" Value="False">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="Arquivada" Style="{StaticResource BadgeText}"
+                                                           Foreground="{DynamicResource WarningBrush}"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <TextBlock Text="{Binding Conteudo}"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource TextMutedBrush}"
+                                                   MaxHeight="36"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   TextWrapping="Wrap"
+                                                   LineHeight="18"/>
+
+                                        <!-- Metadado: tudo cinza, tudo do mesmo peso. O atalho
+                                             continua vindo primeiro por ser o dado mais
+                                             consultado da linha — mas em pílula monocromática,
+                                             e não em bloco verde competindo com o nome. -->
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <Border Style="{StaticResource AtalhoBadge}" Margin="0,0,7,0">
+                                                <TextBlock Style="{StaticResource AtalhoBadgeText}">
+                                                    <Run Text="/"/><Run Text="{Binding Atalho, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </Border>
+                                            <Border Style="{StaticResource Badge}" Margin="0,0,7,0"
+                                                    Padding="9,2"
+                                                    Visibility="{Binding Categoria, Converter={StaticResource NullToVis}}">
+                                                <TextBlock Text="{Binding Categoria}" Style="{StaticResource BadgeText}"/>
+                                            </Border>
+                                            <Border Style="{StaticResource Badge}" Padding="9,2" Margin="0,0,7,0"
+                                                    Visibility="{Binding Favorito, Converter={StaticResource BoolToVisConv}}">
+                                                <TextBlock Text="Destaque" Style="{StaticResource BadgeText}"
+                                                           Foreground="{DynamicResource AccentTextBrush}"/>
+                                            </Border>
+                                            <TextBlock Style="{StaticResource MetaText}" VerticalAlignment="Center"
+                                                       FontSize="10">
+                                                <Run Text="criada em "/>
+                                                <Run Text="{Binding DataCriacao, StringFormat=dd/MM/yyyy, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </WrapPanel>
+                                    </StackPanel>
+
+                                    <!-- Ações -->
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                VerticalAlignment="Center">
+                                        <!-- Favorito pessoal (meu) -->
+                                        <Button Style="{StaticResource ButtonIconOnly}"
+                                                ToolTip="Meu favorito"
+                                                CommandParameter="{Binding}"
+                                                Command="{Binding DataContext.ToggleFavoritoCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Margin="0,0,2,0" Width="32" Height="32">
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="&#xE734;"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Favorito}" Value="True">
+                                                                <Setter Property="Text" Value="&#xE735;"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Button>
+
+                                        <!-- Copiar -->
+                                        <Button Style="{StaticResource ButtonIconOnly}"
+                                                ToolTip="Copiar conteúdo"
+                                                CommandParameter="{Binding}"
+                                                Command="{Binding DataContext.CopiarConteudoCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Margin="0,0,2,0" Width="32" Height="32">
+                                            <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Button>
+
+                                        <!-- Editar -->
+                                        <Button Style="{StaticResource ButtonIconOnly}"
+                                                ToolTip="Editar macro"
+                                                CommandParameter="{Binding}"
+                                                Command="{Binding DataContext.EditarMacroCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Margin="0,0,2,0" Width="32" Height="32">
+                                            <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Button>
+
+                                        <!-- Separador antes do menu -->
+                                        <Border Width="1" Height="18" Margin="6,0"
+                                                Background="{DynamicResource BorderSubtleBrush}"
+                                                VerticalAlignment="Center"/>
+
+                                        <!-- Mais ações (e-mail, arquivar/restaurar, excluir) -->
+                                        <Button Style="{StaticResource ButtonIconOnly}"
+                                                ToolTip="Mais ações" Cursor="Hand"
+                                                Width="32" Height="32"
+                                                Click="BtnMaisAcoes_Click">
+                                            <TextBlock Text="&#xE712;" FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            <Button.ContextMenu>
+                                                <!-- Tag identifica cada item para MenuMaisAcoes_Opened.
+                                                     Usar Tag em vez de índice fixo: reordenar o menu
+                                                     não quebra mais o code-behind. -->
+                                                <ContextMenu Placement="Bottom" Opened="MenuMaisAcoes_Opened">
+                                                    <MenuItem Header="Duplicar macro" Tag="duplicar" Click="MenuDuplicar_Click"/>
+                                                    <MenuItem Header="Enviar por e-mail" Tag="email" Click="MenuEnviarEmail_Click"/>
+                                                    <MenuItem Header="Arquivar macro" Tag="arquivar" Click="MenuArquivar_Click"/>
+                                                    <MenuItem Header="Restaurar macro" Tag="desarquivar" Click="MenuDesarquivar_Click"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="Excluir macro" Tag="excluir"
+                                                              Foreground="{DynamicResource DangerBrush}" Click="MenuExcluir_Click"/>
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- Toast -->
+        <Border Panel.ZIndex="5"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Margin="0,0,32,28"
+                Effect="{DynamicResource ShadowGlass}"
+                Style="{StaticResource ToastBorder}"
+                Visibility="{Binding Mensagem, Converter={StaticResource NullToVis}}">
+            <StackPanel Orientation="Horizontal">
+                <!-- O ícone acompanha o tom: visto de confirmação no sucesso, aviso no erro. -->
+                <TextBlock FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource ToastTexto}">
+                            <Setter Property="FontSize" Value="11"/>
+                            <Setter Property="Text" Value="&#xE73E;"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MensagemSucesso}" Value="False">
+                                    <Setter Property="Text" Value="&#xE7BA;"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Text="{Binding Mensagem}" Style="{StaticResource ToastTexto}"
+                           MaxWidth="420" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

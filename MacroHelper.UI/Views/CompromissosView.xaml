@@ -1,0 +1,765 @@
+﻿<UserControl x:Class="MacroHelper.UI.Views.CompromissosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:MacroHelper.UI.Controls"
+             xmlns:h="clr-namespace:MacroHelper.UI.Helpers"
+             xmlns:v="clr-namespace:MacroHelper.UI.Views"
+             Background="Transparent">
+
+    <UserControl.RenderTransform>
+        <TranslateTransform x:Name="PageSlide"/>
+    </UserControl.RenderTransform>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard><Storyboard>
+                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.22"/>
+                <DoubleAnimation Storyboard.TargetName="PageSlide" Storyboard.TargetProperty="Y" From="10" To="0" Duration="0:0:0.22">
+                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard></BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid>
+        <!-- ── Modal do formulário ── -->
+        <Grid Panel.ZIndex="10" Visibility="{Binding MostrarFormulario, Converter={StaticResource BoolToVisConv}}">
+            <!-- A cortina encosta na quina de baixo do painel de conteúdo, que é arredondada:
+                 sem o mesmo raio ela pinta dois cantos quadrados para fora da curva. -->
+            <Border Background="#99050810" CornerRadius="{StaticResource RadiusBottomXl}"/>
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Width="560" Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource FloatBorderBrush}"
+                    BorderThickness="1" CornerRadius="{StaticResource RadiusXl}">
+                <ScrollViewer MaxHeight="620" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="28,24">
+                    <Grid Margin="0,0,0,20">
+                        <TextBlock Text="{Binding FormTitulo}" FontSize="16" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <Button HorizontalAlignment="Right" Style="{StaticResource ButtonIconOnly}"
+                                Command="{Binding FecharFormularioCommand}" Width="28" Height="28">
+                            <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                       Foreground="{DynamicResource TextMutedBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </Grid>
+
+                    <Border Background="{DynamicResource DangerBgBrush}"
+                            BorderBrush="{DynamicResource DangerBrush}"
+                            BorderThickness="1" CornerRadius="8"
+                            Padding="12,9" Margin="0,0,0,14"
+                            Visibility="{Binding FormErro, Converter={StaticResource NullToVis}}">
+                        <TextBlock Text="{Binding FormErro}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource DangerBrush}" FontSize="12"/>
+                    </Border>
+
+                    <TextBlock Text="O QUE É *" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource InputStyle}" Height="42" Margin="0,0,0,14"
+                             Text="{Binding FormTexto, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Text="ONDE / COM QUEM (opcional)" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource InputStyle}" Height="42" Margin="0,0,0,14"
+                             Text="{Binding FormLocal, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <!-- Dia e hora juntos e obrigatórios: é o que separa um lembrete destes de uma
+                         tarefa com prazo, e um dos dois sozinho não marca nada. -->
+                    <TextBlock Text="QUANDO *" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <!-- WrapPanel, e não StackPanel: numa linha que não quebra o último botão
+                         some para fora do modal, sem barra de rolagem e sem aviso. -->
+                    <WrapPanel Margin="0,0,0,8">
+                        <c:SeletorDeData Margin="0,0,8,6" Texto="{Binding FormData}"/>
+                        <Grid Width="76" Height="38" Margin="0,0,10,6">
+                            <TextBox Style="{StaticResource InputStyle}" MaxLength="5"
+                                     h:MascaraTexto.Formato="Hora"
+                                     Text="{Binding FormHora, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="hh:mm" FontSize="13" IsHitTestVisible="False"
+                                       Foreground="{DynamicResource TextMutedBrush}"
+                                       VerticalAlignment="Center" Margin="13,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding FormHora}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                        <!-- Dois atalhos, e não cinco: o resto das datas e das horas se
+                             escreve nos dois campos ao lado, que estão ali do mesmo jeito.
+                             Atalho que duplica um campo visível é ruído, não conveniência. -->
+                        <Button Content="Hoje"   CommandParameter="hoje"   Style="{StaticResource BotaoOpcao}"
+                                Command="{Binding DefinirDataRapidaCommand}"/>
+                        <Button Content="Amanhã" CommandParameter="amanha" Style="{StaticResource BotaoOpcao}"
+                                Command="{Binding DefinirDataRapidaCommand}"/>
+                    </WrapPanel>
+
+                    <TextBlock Text="DURAÇÃO (opcional)" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <WrapPanel Margin="0,0,0,14">
+                        <Button Content="Não definir" CommandParameter=""
+                                Command="{Binding DefinirDuracaoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormDuracao}" Value="">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="30 min" CommandParameter="30"
+                                Command="{Binding DefinirDuracaoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormDuracao}" Value="30">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="1 hora" CommandParameter="60"
+                                Command="{Binding DefinirDuracaoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormDuracao}" Value="60">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="2 horas" CommandParameter="120"
+                                Command="{Binding DefinirDuracaoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormDuracao}" Value="120">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </WrapPanel>
+
+                    <!-- Sem data não há de onde descontar a antecedência, e o serviço zera os
+                         dois avisos ao gravar. Dizer isso aqui é o que impede a escolha de
+                         desaparecer sem explicação. -->
+                    <Border Style="{StaticResource InsetPanel}" Margin="0,0,0,14" Padding="12,9"
+                            Visibility="{Binding FormSemData, Converter={StaticResource BoolToVis}}">
+                        <TextBlock TextWrapping="Wrap" FontSize="11.5"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Text="Sem data marcada, este lembrete fica na lista esperando ser marcado e não avisa nada. Preencha o dia e a hora para os avisos abaixo valerem."/>
+                    </Border>
+
+                    <!-- Os dois avisos. O de folga é para se organizar; o de cima da hora é
+                         para levantar da cadeira. Ver 004_compromissos.sql. -->
+                    <TextBlock Text="AVISAR COM FOLGA" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <WrapPanel Margin="0,0,0,14">
+                        <Button Content="Não avisar" CommandParameter=""
+                                Command="{Binding DefinirAvisoAntecipadoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoAntecipado}" Value="">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="3 horas" CommandParameter="180"
+                                Command="{Binding DefinirAvisoAntecipadoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoAntecipado}" Value="180">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="1 dia" CommandParameter="1440"
+                                Command="{Binding DefinirAvisoAntecipadoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoAntecipado}" Value="1440">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="2 dias" CommandParameter="2880"
+                                Command="{Binding DefinirAvisoAntecipadoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoAntecipado}" Value="2880">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="1 semana" CommandParameter="10080"
+                                Command="{Binding DefinirAvisoAntecipadoCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoAntecipado}" Value="10080">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </WrapPanel>
+
+                    <TextBlock Text="AVISAR EM CIMA DA HORA" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <WrapPanel Margin="0,0,0,20">
+                        <Button Content="Não avisar" CommandParameter=""
+                                Command="{Binding DefinirAvisoNaHoraCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoNaHora}" Value="">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Na hora" CommandParameter="0"
+                                Command="{Binding DefinirAvisoNaHoraCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoNaHora}" Value="0">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="10 min" CommandParameter="10"
+                                Command="{Binding DefinirAvisoNaHoraCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoNaHora}" Value="10">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="30 min" CommandParameter="30"
+                                Command="{Binding DefinirAvisoNaHoraCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoNaHora}" Value="30">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="1 hora" CommandParameter="60"
+                                Command="{Binding DefinirAvisoNaHoraCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource BotaoOpcao}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FormAvisoNaHora}" Value="60">
+                                            <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </WrapPanel>
+
+                    <TextBlock Text="OBSERVAÇÕES (opcional)" FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <TextBox Style="{StaticResource InputStyle}" Height="66" Margin="0,0,0,20"
+                             AcceptsReturn="True" TextWrapping="Wrap"
+                             VerticalContentAlignment="Top" Padding="12,8"
+                             Text="{Binding FormObservacoes, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancelar" Style="{StaticResource ButtonSecondary}"
+                                Command="{Binding FecharFormularioCommand}"
+                                Margin="0,0,10,0" Width="100"/>
+                        <Button Style="{StaticResource ButtonPrimary}"
+                                Command="{Binding SalvarCommand}" Width="130">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                           VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                <TextBlock Text="Salvar" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <DockPanel>
+            <!-- ── Cabeçalho ── -->
+            <!-- Padding menor que o das outras páginas de propósito: aqui embaixo mora uma
+                 grade, e altura é o recurso escasso dela. -->
+            <Border DockPanel.Dock="Top" Background="Transparent"
+                    BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    Padding="32,16,32,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Lembretes" Style="{StaticResource PageTitleText}"/>
+                        <TextBlock Text="O que tem dia e hora marcados, com aviso antes. O app avisa mesmo que tenha ficado fechado."
+                                   Style="{StaticResource PageSubtitleText}"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Style="{StaticResource ButtonPrimary}"
+                            Command="{Binding NovoCompromissoCommand}" Height="38" Padding="16,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                       VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock Text="Novo lembrete" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <Border DockPanel.Dock="Top" Margin="28,12,28,0" Style="{StaticResource ToastBorder}"
+                    Visibility="{Binding Mensagem, Converter={StaticResource NullToVis}}">
+                <TextBlock Text="{Binding Mensagem}" Style="{StaticResource ToastTexto}"/>
+            </Border>
+
+            <!-- ── Modo de exibição e filtros ──
+                 Os chips de filtro pertencem à LISTA: "próximos" e "histórico" são recortes de
+                 uma lista, e a grade já mostra um período inteiro por definição. Por isso eles
+                 somem nas duas grades, e o que fica no lugar é a navegação por período. -->
+            <Grid DockPanel.Dock="Top" Margin="28,16,28,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- A navegação do período: mesma fileira dos modos, porque as duas dizem
+                     respeito à mesma coisa (o que a tela está mostrando). Em duas fileiras
+                     empilhadas isso custava uns 45px de altura da grade. -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"
+                            Visibility="{Binding MostrarCalendario, Converter={StaticResource BoolToVisConv}}">
+                    <Button Style="{StaticResource ButtonIconOnly}" Width="32" Height="32"
+                            ToolTip="Período anterior"
+                            Command="{Binding PeriodoAnteriorCommand}">
+                        <TextBlock Text="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </Button>
+                    <Button Style="{StaticResource ButtonIconOnly}" Width="32" Height="32" Margin="2,0,12,0"
+                            ToolTip="Próximo período"
+                            Command="{Binding PeriodoSeguinteCommand}">
+                        <TextBlock Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </Button>
+                    <TextBlock Text="{Binding TituloDoPeriodo}" FontSize="14.5" FontWeight="SemiBold"
+                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Hoje" Style="{StaticResource ChipFiltro}" Margin="0,0,14,0"
+                            Visibility="{Binding MostrarCalendario, Converter={StaticResource BoolToVisConv}}"
+                            Command="{Binding IrParaHojeCommand}"/>
+                    <Button CommandParameter="lista" Command="{Binding DefinirModoCommand}" Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ChipFiltro}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Modo}" Value="lista">
+                                        <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="Lista" FontSize="12"/>
+                    </Button>
+                    <Button CommandParameter="semana" Command="{Binding DefinirModoCommand}" Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ChipFiltro}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Modo}" Value="semana">
+                                        <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="Semana" FontSize="12"/>
+                    </Button>
+                    <Button CommandParameter="mes" Command="{Binding DefinirModoCommand}" Margin="0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ChipFiltro}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Modo}" Value="mes">
+                                        <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="Mês" FontSize="12"/>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal"
+                            Visibility="{Binding Modo, Converter={StaticResource StringEqualsToVis}, ConverterParameter=lista}">
+                <Button Command="{Binding DefinirFiltroCommand}" CommandParameter="proximos">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ChipFiltro}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Filtro}" Value="proximos">
+                                    <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <TextBlock FontSize="12"><Run Text="Próximos"/><Run Text="  "/><Run Text="{Binding TotalProximos, Mode=OneWay}" FontWeight="Bold"/></TextBlock>
+                </Button>
+
+                <Button Command="{Binding DefinirFiltroCommand}" CommandParameter="hoje">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ChipFiltro}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Filtro}" Value="hoje">
+                                    <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <TextBlock FontSize="12"><Run Text="Hoje"/><Run Text="  "/><Run Text="{Binding TotalHoje, Mode=OneWay}" FontWeight="Bold"/></TextBlock>
+                </Button>
+
+                <Button Command="{Binding DefinirFiltroCommand}" CommandParameter="semana">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ChipFiltro}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Filtro}" Value="semana">
+                                    <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <TextBlock FontSize="12"><Run Text="7 dias"/><Run Text="  "/><Run Text="{Binding TotalSemana, Mode=OneWay}" FontWeight="Bold"/></TextBlock>
+                </Button>
+
+                <Button Command="{Binding DefinirFiltroCommand}" CommandParameter="historico">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ChipFiltro}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Filtro}" Value="historico">
+                                    <Setter Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <TextBlock FontSize="12"><Run Text="Histórico"/><Run Text="  "/><Run Text="{Binding TotalHistorico, Mode=OneWay}" FontWeight="Bold"/></TextBlock>
+                </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- O corpo da tela: a lista ou uma das grades, no mesmo espaço. Precisa ser um
+                 Grid, e não dois filhos do DockPanel: só o ÚLTIMO filho de um DockPanel ocupa o
+                 que sobra, e o outro acabaria encostado na esquerda com a largura do conteúdo. -->
+            <Grid>
+                <!-- Margem lateral menor que a da lista (28): a grade divide a largura em sete
+                     colunas, e cada 8px de folga aqui é 1px a menos por dia. -->
+                <v:AgendaCalendarioView Margin="16,6,16,12"
+                                        Visibility="{Binding MostrarCalendario, Converter={StaticResource BoolToVisConv}}"/>
+
+            <!-- ── Lista ── -->
+            <!-- Recuo no filho, não como Padding: Padding no ScrollViewer recorta a sombra dos cartões (ver DashboardView). -->
+            <ScrollViewer Visibility="{Binding MostrarCalendario, Converter={StaticResource BoolToVisConv}, ConverterParameter=invert}">
+                <StackPanel Margin="28,14,28,28">
+                    <Border Style="{StaticResource EmptyStatePanel}" Margin="0,20,0,0"
+                            Visibility="{Binding Compromissos.Count, Converter={StaticResource IntZeroToVis}}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" FontSize="28"
+                                       Foreground="{DynamicResource TextMutedBrush}"
+                                       HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                            <TextBlock Text="Nada marcado." FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Crie um lembrete ou troque o filtro acima." FontSize="12"
+                                       Foreground="{DynamicResource TextMutedBrush}"
+                                       HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding Compromissos}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ListRow}" Padding="16,14">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- A etiqueta de data à esquerda é o que faz a lista ser
+                                             lida como agenda: o olho desce pela coluna de horas,
+                                             e não pelos títulos. -->
+                                        <Border Grid.Column="0" Width="86" Padding="6,9"
+                                                CornerRadius="{StaticResource RadiusLg}"
+                                                Margin="0,0,16,0" VerticalAlignment="Center"
+                                                BorderThickness="1"
+                                                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                                Background="{DynamicResource BadgeBgBrush}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Quando, Converter={StaticResource DataAmigavel}}"
+                                                           FontSize="10.5" HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource TextMutedBrush}"/>
+                                                <!-- FontSize e FontWeight moram no Style, e não no elemento:
+                                                     valor local vence Setter de trigger, e com eles aqui fora
+                                                     o "Sem data" continuaria com corpo de hora. -->
+                                                <TextBlock Text="{Binding HoraTexto}"
+                                                           HorizontalAlignment="Center" Margin="0,1,0,0"
+                                                           TextWrapping="Wrap" TextAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="FontSize"   Value="17"/>
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                                                            <Style.Triggers>
+                                                                <!-- "Sem data" não é uma hora: não pode ter o
+                                                                     corpo de uma, nem a cor de destaque. -->
+                                                                <DataTrigger Binding="{Binding TemData}" Value="False">
+                                                                    <Setter Property="FontSize"   Value="12"/>
+                                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Agendado}" Value="False">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Titulo}" FontSize="13.5" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Cancelado}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                                    <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Realizado}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+
+                                                <Border Margin="8,0,0,0" VerticalAlignment="Center"
+                                                        Background="{DynamicResource DangerBgBrush}"
+                                                        Visibility="{Binding Cancelado, Converter={StaticResource BoolToVisConv}}">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border" BasedOn="{StaticResource Badge}"/>
+                                                    </Border.Style>
+                                                    <TextBlock Text="Cancelado" Style="{StaticResource BadgeText}"
+                                                               Foreground="{DynamicResource DangerBrush}"/>
+                                                </Border>
+
+                                                <Border Margin="8,0,0,0" VerticalAlignment="Center"
+                                                        Background="{DynamicResource SuccessBgBrush}"
+                                                        Visibility="{Binding Realizado, Converter={StaticResource BoolToVisConv}}">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border" BasedOn="{StaticResource Badge}"/>
+                                                    </Border.Style>
+                                                    <TextBlock Text="Realizado" Style="{StaticResource BadgeText}"
+                                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                                </Border>
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                <TextBlock Text="&#xE917;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                           Foreground="{DynamicResource TextMutedBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="{Binding HorarioTexto}" FontSize="11"
+                                                           VerticalAlignment="Center" Margin="0,0,12,0"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+                                                <StackPanel Orientation="Horizontal"
+                                                            Visibility="{Binding Local, Converter={StaticResource NullToVis}}">
+                                                    <TextBlock Text="&#xE707;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                               Foreground="{DynamicResource TextMutedBrush}"
+                                                               VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="{Binding Local}" FontSize="11"
+                                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <TextBlock Text="{Binding Observacoes}" FontSize="11" Margin="0,4,0,0"
+                                                       TextWrapping="Wrap" MaxHeight="34"
+                                                       Foreground="{DynamicResource TextMutedBrush}"
+                                                       Visibility="{Binding Observacoes, Converter={StaticResource NullToVis}}"/>
+
+                                            <!-- A promessa de notificação, visível sem abrir o
+                                                 formulário: é a única forma de descobrir um "Sem
+                                                 aviso" antes da hora, e não depois. -->
+                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0"
+                                                        Visibility="{Binding Agendado, Converter={StaticResource BoolToVisConv}}">
+                                                <TextBlock Text="&#xEA8F;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                           Foreground="{DynamicResource AccentTextBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="{Binding AvisosTexto}" FontSize="11"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource AccentTextBrush}"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- ── Ações ── -->
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal"
+                                                        Visibility="{Binding Agendado, Converter={StaticResource BoolToVisConv}}">
+                                                <Button Style="{StaticResource ButtonIconOnly}" ToolTip="Marcar como realizado"
+                                                        Width="30" Height="30" Margin="0,0,2,0"
+                                                        CommandParameter="{Binding}"
+                                                        Command="{Binding DataContext.MarcarRealizadoCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                                </Button>
+                                                <Button Style="{StaticResource ButtonIconOnly}" ToolTip="Cancelar (para os avisos e mantém o registro)"
+                                                        Width="30" Height="30" Margin="0,0,2,0"
+                                                        CommandParameter="{Binding}"
+                                                        Command="{Binding DataContext.CancelarCompromissoCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                </Button>
+                                            </StackPanel>
+
+                                            <Button Style="{StaticResource ButtonIconOnly}" ToolTip="Voltar para a agenda"
+                                                    Width="30" Height="30" Margin="0,0,2,0"
+                                                    CommandParameter="{Binding}"
+                                                    Visibility="{Binding Agendado, Converter={StaticResource BoolToVisConv}, ConverterParameter=invert}"
+                                                    Command="{Binding DataContext.ReabrirCommand,
+                                                              RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                <TextBlock Text="&#xE7A7;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            </Button>
+
+                                            <Button Style="{StaticResource ButtonIconOnly}" ToolTip="Editar"
+                                                    Width="30" Height="30" Margin="0,0,2,0"
+                                                    CommandParameter="{Binding}"
+                                                    Command="{Binding DataContext.EditarCompromissoCommand,
+                                                              RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            </Button>
+
+                                            <Button ToolTip="Excluir" Cursor="Hand"
+                                                    Width="30" Height="30" BorderThickness="0" Background="Transparent"
+                                                    CommandParameter="{Binding}"
+                                                    Command="{Binding DataContext.ConfirmarExclusaoCommand,
+                                                              RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                <Button.Visibility>
+                                                    <MultiBinding Converter="{StaticResource EqualsToVis}" ConverterParameter="invert">
+                                                        <Binding Path="DataContext.ConfirmandoExclusaoId" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                        <Binding Path="Id"/>
+                                                    </MultiBinding>
+                                                </Button.Visibility>
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="bg" CornerRadius="8" Background="{TemplateBinding Background}">
+                                                            <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource DangerBgBrush}"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+
+                                            <StackPanel Orientation="Horizontal" Margin="2,0,0,0">
+                                                <StackPanel.Visibility>
+                                                    <MultiBinding Converter="{StaticResource EqualsToVis}">
+                                                        <Binding Path="DataContext.ConfirmandoExclusaoId" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                        <Binding Path="Id"/>
+                                                    </MultiBinding>
+                                                </StackPanel.Visibility>
+                                                <Button Content="Confirmar" Style="{StaticResource ButtonSecondary}"
+                                                        Foreground="{DynamicResource DangerBrush}"
+                                                        CommandParameter="{Binding}"
+                                                        Command="{Binding DataContext.ExcluirCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Height="28" Padding="10,0" FontSize="11" Margin="0,0,4,0"/>
+                                                <Button Style="{StaticResource ButtonIconOnly}"
+                                                        Command="{Binding DataContext.CancelarExclusaoCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Width="28" Height="28">
+                                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,296 @@
+{
+  "Data": "2026-09-15T15:58:26.1329529-03:00",
+  "Sistema": "Microsoft Windows NT 10.0.26200.0",
+  "SDK": "10.0.401",
+  "RuntimeDoTesthost": ".NET 8.0.29 x64",
+  "Build": {
+    "Comando": "dotnet build MacroHelper.sln --no-restore",
+    "Resultado": "Aprovado",
+    "Avisos": 0,
+    "Erros": 0,
+    "Log": "../../TestResults/skald-espacial/build-final.log"
+  },
+  "Testes": {
+    "Comando": "dotnet test MacroHelper.sln --no-build --no-restore --logger console;verbosity=minimal --logger trx;LogFileName=regressao-final.trx --results-directory .\\TestResults\\skald-espacial",
+    "Total": 499,
+    "Aprovados": 499,
+    "Falhas": 0,
+    "Ignorados": 0,
+    "Diagnostico": 46,
+    "DiagnosticoAprovados": 46,
+    "DuracaoIndicadaNoConsole": "1 m 17 s",
+    "TRX": "../../TestResults/skald-espacial/regressao-final.trx",
+    "CasosDoDiagnostico": [
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 940, tema: \"Dark\", quantidade: 0)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.5704913"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 940, tema: \"Dark\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.5253733"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Dashboard\", largura: 940, tema: \"Light\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6894825"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Configuracoes\", largura: 1200, tema: \"Light\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.6704859"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 1200, tema: \"Light\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6975728"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 940, tema: \"Light\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.5788519"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 940, tema: \"Dark\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.5883335"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 940, tema: \"Light\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6284369"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Resize_proximidade_digitacao_e_contexto_antigo_cancelam_sem_reinicio_automatico",
+        "Resultado": "Passed",
+        "Duracao": "00:00:02.1162199"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Dashboard\", largura: 1200, tema: \"Dark\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.8517252"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Dashboard\", largura: 1200, tema: \"Dark\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.8250599"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 940, tema: \"Dark\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.2688025"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Configuracoes\", largura: 1200, tema: \"Dark\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.3980963"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Configuracoes\", largura: 940, tema: \"Dark\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.1685208"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Modal_input_lista_e_navegacao_retiraram_envelope(tela: \"Notas\", largura: 1200, tema: \"Light\")",
+        "Resultado": "Passed",
+        "Duracao": "00:00:03.7156203"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 1200, tema: \"Light\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6257719"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 940, tema: \"Dark\", quantidade: 0)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.5816656"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 940, tema: \"Dark\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.5736549"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 1200, tema: \"Dark\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6315277"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 940, tema: \"Light\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.4574387"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Geometria_rejeita_obstaculo_recorte_e_tamanho_excessivo",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.0002343"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Configuracoes\", largura: 1200, tema: \"Light\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.7377801"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 940, tema: \"Light\", quantidade: 0)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.5563742"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Modal_input_lista_e_navegacao_retiraram_envelope(tela: \"Categorias\", largura: 940, tema: \"Light\")",
+        "Resultado": "Passed",
+        "Duracao": "00:00:03.2944414"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 1200, tema: \"Light\", quantidade: 0)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.7936455"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Dashboard\", largura: 940, tema: \"Dark\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.2879506"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 1200, tema: \"Dark\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:02.0556191"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 1200, tema: \"Dark\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:03.7281129"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Configuracoes\", largura: 940, tema: \"Light\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.1639721"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Dashboard\", largura: 940, tema: \"Dark\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.5458444"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Modal_input_lista_e_navegacao_retiraram_envelope(tela: \"Notas\", largura: 940, tema: \"Dark\")",
+        "Resultado": "Passed",
+        "Duracao": "00:00:02.7239585"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 1200, tema: \"Light\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.9512823"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Configuracoes\", largura: 940, tema: \"Light\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.2596805"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Configuracoes\", largura: 1200, tema: \"Dark\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.4398713"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 1200, tema: \"Dark\", quantidade: 0)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6866578"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Dashboard\", largura: 1200, tema: \"Light\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.5751777"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 1200, tema: \"Light\", quantidade: 0)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6205134"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Categorias\", largura: 940, tema: \"Light\", quantidade: 0)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6028692"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Configuracoes\", largura: 940, tema: \"Dark\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.1726094"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 940, tema: \"Light\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.9223229"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 1200, tema: \"Dark\", quantidade: 0)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.6054112"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Modal_input_lista_e_navegacao_retiraram_envelope(tela: \"Categorias\", largura: 1200, tema: \"Dark\")",
+        "Resultado": "Passed",
+        "Duracao": "00:00:03.4084713"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Dashboard\", largura: 1200, tema: \"Light\", quantidade: 1)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:00.7053127"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 1200, tema: \"Light\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.5920047"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Notas\", largura: 1200, tema: \"Dark\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:02.0835097"
+      },
+      {
+        "Teste": "MacroHelper.Tests.SkaldDiagnosticoEspacialTests.Medir_e_renderizar_telas_reais(tela: \"Dashboard\", largura: 940, tema: \"Light\", quantidade: 18)",
+        "Resultado": "Passed",
+        "Duracao": "00:00:01.1610773"
+      }
+    ]
+  },
+  "Evidencias": {
+    "PNGs": 96,
+    "Decodificados": 96,
+    "DimensoesConferidas": [
+      "1200x802",
+      "940x642"
+    ],
+    "DpiRender": 96,
+    "EscalasWpfEncontradas": [
+      1
+    ],
+    "CenariosBase": 40,
+    "RegioesBaseAprovadas": 20,
+    "RegioesBaseRejeitadas": 20,
+    "EstadosRolados": 20,
+    "SequenciaVirtualSegundos": [
+      0,
+      1,
+      2,
+      4,
+      6,
+      9,
+      12,
+      14,
+      15,
+      16
+    ],
+    "PontosHitTestBase": 404
+  },
+  "Preservacao": {
+    "ArquivosPreexistentesReverificadosPorSHA256": 190,
+    "ArquivosPreexistentesAlterados": []
+  },
+  "Limites": [
+    "Árvore WPF real em fonte oculta; sem uso manual da janela pessoal.",
+    "96 DPI; escalas 125%, 150% e 200% pendentes.",
+    "Retângulo de teste; sem sprites ou coreografia final.",
+    "Entrada local; revelação andando pela borda lateral pendente."
+  ]
+}
+

@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual de consultas SQL — MAX</title>
+<style>
+  /* ── Vapor Chrome — espelha Light.xaml / Dark.xaml ── */
+  :root {
+    --bg:          #F7F7FC;
+    --surface:     #FFFFFF;
+    --surface-el:  #F1F0F8;
+    --border:      #D6D3E2;
+    --border-l:    #E7E5EF;
+    --txt:         #221F30;
+    --txt-sec:     #6B6878;
+    --txt-muted:   #9795A6;
+    --accent:      #818CF8;
+    --accent-h:    #6B74E0;
+    --accent-lt:   #ECEAFC;
+    --accent-txt:  #5247D6;
+    --warn:        #C98F2B;
+    --warn-bg:     #FBF1DE;
+    --danger:      #E0563F;
+    --success:     #2F9C6E;
+    --code-bg:     #16141F;
+    --code-txt:    #D7D4F0;
+    --mono: "Cascadia Mono","Consolas","SF Mono","Roboto Mono",ui-monospace,monospace;
+    --sans: "Segoe UI",system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+    --r: 10px;
+    --r-sm: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:         #1B1924;
+      --surface:    #242230;
+      --surface-el: #2A2837;
+      --border:     #423E4D;
+      --border-l:   #34313F;
+      --txt:        #F1F0F7;
+      --txt-sec:    #B6B3C4;
+      --txt-muted:  #8C899C;
+      --accent:     #A6ABF7;
+      --accent-h:   #8E94F0;
+      --accent-lt:  #383361;
+      --accent-txt: #C7CBFA;
+      --warn:       #E0B45C;
+      --warn-bg:    #3A301A;
+      --danger:     #EB6B54;
+      --success:    #4FC793;
+      --code-bg:    #0F0E17;
+      --code-txt:   #D7D4F0;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Scrollbar fina ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--txt-muted); }
+
+  /* ── Topo fixo ── */
+  .topo {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-l);
+    padding: 14px 24px 0;
+  }
+  .topo-interno { max-width: 1100px; margin: 0 auto; }
+
+  .marca {
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .marca-icone {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--accent-lt);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--accent-txt); flex-shrink: 0;
+  }
+  .marca h1 {
+    margin: 0; font-size: 15px; font-weight: 650;
+    letter-spacing: -0.01em; color: var(--txt);
+  }
+  .marca .divider {
+    width: 1px; height: 14px; background: var(--border);
+  }
+  .marca .sub {
+    font-family: var(--mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--txt-muted);
+  }
+
+  /* Busca */
+  .busca-linha { display: flex; gap: 10px; align-items: center; }
+  #busca {
+    flex: 1 1 300px; min-width: 0;
+    padding: 8px 14px 8px 36px;
+    font-family: var(--sans); font-size: 13.5px;
+    color: var(--txt); background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    transition: border-color .15s, box-shadow .15s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239795A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+  }
+  #busca:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  #busca::placeholder { color: var(--txt-muted); }
+  .contador {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--txt-muted); white-space: nowrap;
+    background: var(--surface-el);
+    border: 1px solid var(--border-l);
+    border-radius: 20px; padding: 3px 10px;
+  }
+
+  /* Abas */
+  .abas {
+    display: flex; gap: 0; margin-top: 14px;
+    border-bottom: 1px solid var(--border-l);
+  }
+  .aba-btn {
+    font-family: var(--sans); font-size: 12.5px; font-weight: 500;
+    padding: 9px 16px 10px; background: transparent;
+    color: var(--txt-muted); border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; cursor: pointer;
+    transition: color .15s, border-color .15s;
+    letter-spacing: 0;
+  }
+  .aba-btn:hover { color: var(--txt-sec); }
+  .aba-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .aba-btn[aria-selected="true"] {
+    color: var(--accent-txt);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Chips de módulo */
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 0 14px; }
+  .chip {
+    font-family: var(--sans); font-size: 11.5px; font-weight: 500;
+    padding: 3px 12px;
+    background: transparent; color: var(--txt-muted);
+    border: 1px solid var(--border);
+    border-radius: 20px; cursor: pointer;
+    transition: all .15s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent-txt); background: var(--accent-lt); }
+  .chip[aria-pressed="true"] {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+    font-weight: 600;
+  }
+
+  /* Conteúdo principal */
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 80px; }
+  .painel[hidden] { display: none; }
+
+  /* ── Ficha de consulta ── */
+  .ficha {
+    background: var(--surface);
+    border: 1px solid var(--border-l);
+    border-radius: var(--r);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .ficha:hover {
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 8%, transparent);
+    border-color: var(--border);
+  }
+  .lombada {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    flex: 0 0 52px;
+    background: var(--accent-lt);
+    border-right: 1px solid var(--border-l);
+    padding: 16px 0 12px;
+    gap: 6px;
+  }
+  .lombada span {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.18em; color: var(--accent-txt);
+    writing-mode: vertical-rl; text-orientation: mixed;
+    white-space: nowrap; font-weight: 600;
+  }
+  .corpo { flex: 1 1 auto; min-width: 0; padding: 16px 20px 18px; display: flex; flex-direction: column; gap: 0; }
+  .ficha { display: flex; }
+  .cab {
+    display: flex; justify-content: space-between;
+    gap: 12px; align-items: flex-start; flex-wrap: wrap;
+    margin-bottom: 2px;
+  }
+  .ficha h2 {
+    margin: 0; font-size: 14.5px; font-weight: 650;
+    letter-spacing: -0.01em; color: var(--txt);
+  }
+  .objetivo { margin: 2px 0 0; color: var(--txt-sec); font-size: 13px; max-width: 70ch; }
+  .selo {
+    font-family: var(--sans); font-size: 10.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--accent-txt); background: var(--accent-lt);
+    padding: 2px 10px; border-radius: 20px; white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .selo.alerta { color: var(--warn); background: var(--warn-bg); }
+
+  /* Meta grid */
+  .meta {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0 20px; margin: 12px 0 0; padding: 12px 0 0;
+    border-top: 1px solid var(--border-l);
+  }
+  .meta dt {
+    font-family: var(--mono); font-size: 9.5px; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--txt-muted); margin-bottom: 2px;
+  }
+  .meta dd {
+    margin: 0 0 10px; font-family: var(--mono); font-size: 12px;
+    line-height: 1.5; color: var(--txt-sec);
+  }
+
+  /* Bloco de SQL */
+  .sql-bloco { margin-top: 12px; border-radius: var(--r-sm); overflow: hidden; }
+  .sql-barra {
+    display: flex; justify-content: space-between; align-items: center;
+    background: color-mix(in srgb, var(--code-bg) 95%, var(--accent) 5%);
+    padding: 7px 12px;
+  }
+  .sql-barra .rotulo {
+    font-family: var(--mono); font-size: 9.5px; text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: color-mix(in srgb, var(--accent) 60%, #fff 40%);
+    font-weight: 600;
+  }
+  .copiar {
+    font-family: var(--mono); font-size: 10.5px; background: transparent;
+    color: var(--txt-muted);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius: 5px; padding: 3px 10px; cursor: pointer;
+    transition: all .15s;
+  }
+  .copiar:hover {
+    color: var(--accent-txt);
+    border-color: var(--accent);
+    background: var(--accent-lt);
+  }
+  pre {
+    margin: 0;
+    background: var(--code-bg); color: var(--code-txt);
+    padding: 14px 16px 16px;
+    overflow-x: auto;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.65; tab-size: 4;
+  }
+  .kw  { color: #A6ABF7; font-weight: 600; }
+  .str { color: #8FD9A4; }
+  .com { color: #5F6B82; font-style: italic; }
+  .var { color: #E8C37A; }
+  .num { color: #E8C37A; }
+
+  /* Nota de aviso */
+  .nota {
+    margin-top: 12px;
+    background: var(--warn-bg);
+    border-left: 3px solid var(--warn);
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    padding: 10px 14px; font-size: 13px;
+  }
+  .nota strong {
+    display: block; font-family: var(--mono); font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--warn); margin-bottom: 5px; font-weight: 700;
+  }
+  .nota ul { margin: 0; padding-left: 16px; }
+  .nota li { margin-bottom: 4px; color: var(--txt-sec); }
+  .nota li:last-child { margin-bottom: 0; }
+
+  /* ── Tab-card (dicionário) ── */
+  .tab-card {
+    background: var(--surface); border: 1px solid var(--border-l);
+    border-radius: var(--r); padding: 18px 22px; margin-bottom: 12px;
+    transition: box-shadow .2s;
+  }
+  .tab-card:hover {
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 8%, transparent);
+    border-color: var(--border);
+  }
+  .tab-card h2 {
+    margin: 0 0 2px; font-size: 14.5px; font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .tab-card .modulo {
+    font-family: var(--sans); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent-txt); background: var(--accent-lt);
+    padding: 1px 8px; border-radius: 20px; display: inline-block;
+    margin-bottom: 6px;
+  }
+  .tab-card .desc { margin: 8px 0 0; color: var(--txt-sec); font-size: 13px; max-width: 70ch; }
+  table.campos { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+  table.campos th {
+    text-align: left; font-family: var(--mono); font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--txt-muted);
+    border-bottom: 1px solid var(--border-l); padding: 0 10px 7px 0; font-weight: 600;
+  }
+  table.campos td {
+    padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--border-l); vertical-align: top;
+  }
+  table.campos tr:last-child td { border-bottom: none; }
+  table.campos tr:hover td { background: var(--surface-el); }
+  table.campos td:first-child {
+    font-family: var(--mono); font-size: 12px; white-space: nowrap;
+    width: 1%; color: var(--accent-txt); font-weight: 500;
+  }
+  .relac { margin-top: 14px; }
+  .relac span {
+    font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--txt-muted); display: block; margin-bottom: 6px;
+  }
+  .relac code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--accent-lt); color: var(--accent-txt);
+    padding: 2px 7px; border-radius: var(--r-sm);
+    margin: 0 4px 5px 0; display: inline-block;
+  }
+
+  /* ── Bloco estático (relacionamentos / padrões) ── */
+  .bloco {
+    background: var(--surface); border: 1px solid var(--border-l);
+    border-radius: var(--r); padding: 22px 24px; margin-bottom: 12px;
+  }
+  .bloco h2 { margin: 0 0 14px; font-size: 15px; font-weight: 650; }
+  .bloco h3 { margin: 20px 0 6px; font-size: 13px; font-weight: 650; color: var(--txt); }
+  .bloco h3:first-of-type { margin-top: 0; }
+  .bloco p { margin: 0 0 10px; max-width: 72ch; color: var(--txt-sec); font-size: 13.5px; }
+  .bloco ul { margin: 0 0 10px; padding-left: 20px; max-width: 72ch; }
+  .bloco li { margin-bottom: 5px; color: var(--txt-sec); font-size: 13.5px; }
+  .bloco strong { color: var(--txt); }
+  .bloco code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--accent-lt); color: var(--accent-txt);
+    padding: 1px 6px; border-radius: var(--r-sm);
+  }
+  .arvore {
+    background: var(--code-bg); color: var(--code-txt);
+    padding: 16px 20px; border-radius: var(--r-sm);
+    overflow-x: auto; font-family: var(--mono);
+    font-size: 12px; line-height: 1.55; margin: 12px 0 0;
+  }
+
+  .vazio {
+    text-align: center; padding: 72px 20px; color: var(--txt-muted);
+  }
+  .vazio p { margin: 0 0 6px; font-size: 13.5px; }
+  .rodape {
+    max-width: 1100px; margin: 0 auto; padding: 0 24px 48px;
+    font-family: var(--mono); font-size: 10.5px; color: var(--txt-muted);
+  }
+
+  @media (max-width: 600px) {
+    .lombada { flex-basis: 38px; }
+    .corpo { padding: 14px 14px 16px; }
+    .tab-card, .bloco { padding: 14px 16px; }
+    main { padding: 16px 14px 60px; }
+    .topo { padding: 12px 14px 0; }
+  }
+  @media print {
+    .topo, .copiar, .rodape { display: none; }
+    body { background: #fff; }
+    .painel[hidden] { display: block !important; }
+    .ficha, .tab-card, .bloco { break-inside: avoid; border-color: #ccc; box-shadow: none; }
+    pre, .arvore { background: #fff; color: #000; border: 1px solid #ccc; }
+    .kw, .str, .com, .var, .num { color: #000; }
+    .lombada { background: #eee; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-interno">
+    <div class="marca">
+      <div class="marca-icone">🗄️</div>
+      <h1>Manual SQL — MAX</h1>
+      <div class="divider"></div>
+      <span class="sub">Suporte MAX · Aline Martins</span>
+    </div>
+    <div class="busca-linha">
+      <input id="busca" type="search" placeholder="Buscar por objetivo, tabela, campo ou trecho de SQL…" autocomplete="off">
+      <span class="contador" id="contador"></span>
+    </div>
+    <div class="abas" role="tablist">
+      <button class="aba-btn" role="tab" data-painel="consultas" aria-selected="true">Consultas</button>
+      <button class="aba-btn" role="tab" data-painel="tabelas" aria-selected="false">Dicionário de tabelas</button>
+      <button class="aba-btn" role="tab" data-painel="relacionamentos" aria-selected="false">Relacionamentos</button>
+      <button class="aba-btn" role="tab" data-painel="padroes" aria-selected="false">Padrões e armadilhas</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<main>
+  <section class="painel" id="painel-consultas"></section>
+  <section class="painel" id="painel-tabelas" hidden></section>
+
+  <section class="painel" id="painel-relacionamentos" hidden>
+    <div class="bloco">
+      <h2>Como o processo se ramifica</h2>
+      <p>Tudo gira em torno de <code>TbProcessos.IdProc</code>. Esse campo é a chave que aparece em praticamente todas as tabelas relacionadas — quando não souber por onde ligar duas tabelas, comece procurando <code>IdProc</code> nas duas.</p>
+      <pre class="arvore">TbProcessos  (IdProc)
+     |
+     +----> TbPartesProcessos ----> TbPartes
+     |
+     +----> TbPublicacaoWS ----> TbStatusPublicacao
+     |            |
+     |            v
+     +----> TbPrazos
+     |            |
+     |            v
+     +----> TbDiligencias
+     |            |
+     |            v
+     |      TbArquivosDiligencias ----> TbArquivosProcesso
+     |
+     +----> TbArquivosProcesso
+     |
+     +----> TbAndamProcessual
+     |
+     +----> TbCustasProcessuais
+     |
+     +----> tbSpProcessoPedidos ---+----> TbAssuntoPedido
+     |                             +----> TbTiposCategorias
+     |
+     +----> TbDocumentoSubsidiosProcessos
+     |
+     +----> TbGrupoMateria      (via IdGrupoMateria)
+     +----> TbTipoProcesso      (via IdTipoProcesso)
+     +----> TbFasesProc         (via CodFase)
+     +----> TbNaturezaJuridica  (via IdNaturezaJuridica)
+     +----> TbAdvogados         (via CodAdvogado, IdAdvogado2, IdAdvogado3)
+     +----> TbCausaRaiz</pre>
+
+      <h3>Onde o campo IdDiligencia aparece</h3>
+      <p>Levantado com a consulta de catálogo <strong>CAT-04</strong>. Serve para rastrear tudo que está pendurado em uma diligência:</p>
+      <ul>
+        <li>TbArquivosDiligencias · TbArquivosProcesso · TbCustasProcessuais</li>
+        <li>tbDadosAjuizamento · tbDoctoDiligencia · tbJustificativaPrazoProcesso</li>
+        <li>tbLogDisparoEmailDiligencia · tbLogsDiligenciaWebJurAPI</li>
+        <li>TbPrazos · TbPrazosSemAdv</li>
+        <li>TbProtocoloEletronico · tbProtocoloEletronicoPJEMG · tbProtocoloEletronicoPJERJ</li>
+      </ul>
+
+      <h3>Famílias de tabelas de documento</h3>
+      <p>Foram localizadas mais de 60 tabelas ligadas a documentos, com nomes muito parecidos entre si. As que aparecem nos atendimentos:</p>
+      <ul>
+        <li><code>TbArquivosProcesso</code> — a principal, guarda o arquivo em si</li>
+        <li><code>TbArquivosDiligencias</code> — tabela de vínculo entre arquivo e diligência</li>
+        <li><code>tbDoctoDiligencia</code> · <code>TbDocumentoVinculado</code> · <code>TbDocumentoSubsidiosProcessos</code></li>
+        <li><code>TbLogDocumento</code> · <code>TbLogDiligencias</code> · <code>TbProtocoloDocumento</code></li>
+        <li><code>TbTipoDocumento</code> · <code>TbTipoDoctoDiligencia</code> · <code>TbEntregaDocumento</code></li>
+      </ul>
+      <div class="nota"><strong>Verificar antes de usar</strong>
+        <ul><li>Os documentos de origem citam <code>TbDocumento</code>, <code>TbDocumentos</code>, <code>tbDocumento</code> e <code>tbDocumentos</code> em pontos diferentes, sem deixar claro se são quatro tabelas, duas, ou variações de escrita da mesma. Rode a consulta CAT-02 com <code>LIKE '%Documento%'</code> e fixe aqui os nomes reais.</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="painel" id="painel-padroes" hidden>
+    <div class="bloco">
+      <h2>Armadilhas conhecidas</h2>
+      <p>Coisas que já custaram tempo ou geraram resultado errado. Vale reler antes de entregar conferência para cliente.</p>
+
+      <h3>NOT IN engole os NULL</h3>
+      <p><code>WHERE StatusPublicacao NOT IN (1,4,5)</code> <strong>não</strong> traz as publicações com status NULL. Comparar qualquer coisa com NULL dá desconhecido, e o registro é descartado. Como NULL é um dos valores que existem de fato na TbPublicacaoWS, essa consulta esconde justamente parte do que se quer investigar.</p>
+      <p>Para incluir os nulos: <code>WHERE (StatusPublicacao NOT IN (1,4,5) OR StatusPublicacao IS NULL)</code>.</p>
+
+      <h3>Função na coluna derruba o índice</h3>
+      <p><code>WHERE CAST(Data AS DATE) = '2026-07-14'</code> obriga o banco a calcular o CAST em cada linha antes de comparar, então nenhum índice sobre <code>Data</code> é aproveitado. O intervalo faz o mesmo trabalho e continua indexável:</p>
+      <p><code>WHERE Data >= '2026-07-14' AND Data &lt; '2026-07-15'</code></p>
+      <p>Vale a mesma lógica para <code>YEAR(Data) = 2024</code> — troque por <code>&gt;= '2024-01-01' AND &lt; '2025-01-01'</code>.</p>
+
+      <h3>Comparação de CNJ é textual</h3>
+      <p>Máscara diferente entre planilha e banco (com pontuação de um lado, só dígitos do outro, ou espaço sobrando) aparece como DIVERGENTE mesmo com os dígitos idênticos. Quando a divergência for suspeita, normalize os dois lados para só dígitos antes de concluir.</p>
+
+      <h3>IS NOT NULL redundante em comparação de data</h3>
+      <p>Em <code>WHERE pub.Data > p.DtEncerramento</code>, as pastas sem encerramento já ficam de fora sozinhas, porque comparar com NULL nunca é verdadeiro. Escrever <code>DtEncerramento IS NOT NULL</code> junto não muda o resultado — mas deixa a intenção explícita para quem ler depois. As duas versões circulam na documentação; não é divergência.</p>
+
+      <h3>Uma pasta, várias linhas</h3>
+      <p>Em <code>tbSpProcessoPedidos</code> cada linha é um pedido. Uma pasta com oito pedidos volta oito vezes. Não existe concatenação por ponto e vírgula — quem espera uma linha por pasta precisa de CTE com agregação ou <code>STUFF + FOR XML PATH</code>.</p>
+    </div>
+
+    <div class="bloco">
+      <h2>Padrões que se repetem</h2>
+
+      <h3>Filtro por período</h3>
+      <p><code>WHERE Data >= '2026-01-01' AND Data &lt; '2027-01-01'</code> — limite inferior fechado, superior aberto. Evita o problema de hora no último dia.</p>
+
+      <h3>Exploração antes da consulta boa</h3>
+      <p><code>SELECT TOP 20 *</code> primeiro para ver o formato dos dados, depois a consulta com as colunas certas. Evita puxar milhões de linhas por engano.</p>
+
+      <h3>LEFT JOIN por padrão em conferência</h3>
+      <p>Em validação de lista de cliente, LEFT JOIN é quase sempre o certo: o que não existe no banco precisa aparecer como "não encontrado", não sumir. INNER JOIN só quando o relacionamento for obrigatório para a pergunta fazer sentido.</p>
+
+      <h3>Registros ativos</h3>
+      <p><code>Status = 1</code> ou <code>StatusRegistro = 1</code>, dependendo da tabela. Em <code>tbPartesProcessos</code> é <code>StatusRegistro</code>.</p>
+
+      <h3>Concatenar linhas em uma coluna</h3>
+      <p><code>STUFF((SELECT ... FOR XML PATH('')),1,0,'')</code> — usado para juntar todas as partes de um processo em uma célula só.</p>
+
+      <h3>Aliases curtos</h3>
+      <p>p = TbProcessos · pr = TbPrazos · pub = TbPublicacaoWS · d = TbDiligencias · sp = tbSpProcessoPedidos · gm = TbGrupoMateria · tp = TbTipoProcesso · ap = TbAssuntoPedido</p>
+
+      <h3>NOLOCK</h3>
+      <p>Usado só em leitura para análise. Aceita leitura suja: pode trazer linha que ainda vai sofrer rollback. Não usar em número que vá para relatório oficial do cliente.</p>
+    </div>
+  </section>
+</main>
+
+<p class="rodape">Para incluir uma consulta, edite o array CONSULTAS no código deste arquivo.</p>
+
+<script>
+const CONSULTAS = [
+{
+  id:"PRC-01", modulo:"Processos",
+  titulo:"Conferir CNJ informado contra o CNJ cadastrado, por pasta",
+  objetivo:"Valida em lote se o número CNJ que veio na planilha ou no chamado é o mesmo gravado no cadastro. Devolve OK, DIVERGENTE ou PASTA NÃO ENCONTRADA para cada pasta da lista.",
+  tabelas:["TbProcessos"], campos:["Pasta","NumProcessoCNJ","IdProc"],
+  parametros:"A lista de pastas e CNJs no INSERT INTO @Processos — uma linha por processo a conferir.",
+  observacoes:[
+    "A comparação é textual: máscara diferente entre planilha e banco (sem pontuação de um lado, espaço sobrando no outro) aparece como DIVERGENTE mesmo com os dígitos batendo. Confirme normalizando os dois lados antes de reportar ao cliente.",
+    "O LEFT JOIN é proposital: mantém na saída as pastas que não existem no banco. Com INNER JOIN elas sumiriam e a conferência ficaria incompleta sem aviso."
+  ],
+  tags:["validação","CNJ","conferência","lote","planilha"],
+  sql:`DECLARE @Processos TABLE
+(
+    Pasta INT,
+    NumProcessoCNJ VARCHAR(30)
+);
+
+INSERT INTO @Processos (Pasta, NumProcessoCNJ)
+VALUES
+(143707,'1142955-20.2026.8.13.0024');
+
+SELECT
+    l.Pasta AS Pasta_Informada,
+    l.NumProcessoCNJ AS CNJ_Informado,
+    p.Pasta AS Pasta_Banco,
+    p.NumProcessoCNJ AS CNJ_Banco,
+    CASE
+        WHEN p.IdProc IS NULL THEN 'PASTA NÃO ENCONTRADA'
+        WHEN l.NumProcessoCNJ = p.NumProcessoCNJ THEN 'OK'
+        ELSE 'DIVERGENTE'
+    END AS Resultado
+FROM @Processos l
+LEFT JOIN TbProcessos p
+    ON p.Pasta = l.Pasta
+ORDER BY l.Pasta;`
+},
+{
+  id:"PRC-02", modulo:"Processos",
+  titulo:"Buscar uma pasta",
+  objetivo:"Ponto de partida da maioria dos atendimentos: abrir o cadastro completo de uma pasta para ver fase, status, advogado e datas.",
+  tabelas:["TbProcessos"], campos:["Pasta"],
+  parametros:"O número da pasta.",
+  tags:["pasta","básico","atendimento"],
+  sql:`SELECT *
+FROM TbProcessos
+WHERE Pasta = 12345;`
+},
+{
+  id:"PRC-03", modulo:"Processos",
+  titulo:"Buscar por IdProc ou por número CNJ",
+  objetivo:"Quando o chamado veio com o identificador interno ou com o número CNJ em vez da pasta.",
+  tabelas:["TbProcessos"], campos:["IdProc","NumProcessoCNJ"],
+  parametros:"O IdProc ou o CNJ, conforme o caso.",
+  observacoes:["Busca por CNJ depende da máscara gravada. Se não retornar nada, teste sem a pontuação antes de concluir que o processo não existe."],
+  tags:["IdProc","CNJ","básico"],
+  sql:`SELECT *
+FROM TbProcessos
+WHERE IdProc = 98765;
+
+SELECT *
+FROM TbProcessos
+WHERE NumProcessoCNJ = '0012345-12.2026.8.13.0001';`
+},
+{
+  id:"PRC-04", modulo:"Processos",
+  titulo:"Listar várias pastas de uma vez",
+  objetivo:"Base de qualquer conferência: joga a lista de pastas do cliente e traz pasta, IdProc e CNJ lado a lado para comparar no Excel.",
+  tabelas:["TbProcessos"], campos:["Pasta","IdProc","NumProcessoCNJ"],
+  parametros:"A lista de pastas dentro do IN.",
+  observacoes:["O IN não avisa quando uma pasta não existe — ela simplesmente não volta. Se precisar saber quais faltaram, use a PRC-01, que marca PASTA NÃO ENCONTRADA."],
+  tags:["lote","conferência","IN","planilha"],
+  sql:`SELECT
+    Pasta,
+    IdProc,
+    NumProcessoCNJ
+FROM TbProcessos
+WHERE Pasta IN (...)
+ORDER BY Pasta;`
+},
+{
+  id:"PRC-05", modulo:"Processos",
+  titulo:"Conferência de pastas com tipo de ação e grupo de matéria",
+  objetivo:"Versão enriquecida da conferência: além de pasta e CNJ, traz a descrição do tipo de ação e do grupo de matéria, que é o que o cliente costuma querer validar junto.",
+  tabelas:["TbProcessos","TbTipoProcesso","TbGrupoMateria"],
+  campos:["Pasta","IdProc","NumProcessoCNJ","IdTipoProcesso","IdGrupoMateria"],
+  parametros:"A lista de pastas no IN.",
+  observacoes:["LEFT JOIN nas duas tabelas de domínio: processo com tipo ou grupo não preenchido continua aparecendo, com a descrição em branco. Com INNER JOIN esses casos sumiriam — e normalmente são exatamente os que o cliente está reclamando."],
+  tags:["conferência","tipo de ação","grupo de matéria","lote"],
+  sql:`SELECT
+    p.Pasta,
+    p.IdProc,
+    p.NumProcessoCNJ,
+    tp.TipoProcesso,
+    gm.Descricao
+FROM TbProcessos p
+LEFT JOIN TbTipoProcesso tp
+    ON tp.IdTipoProcesso = p.IdTipoProcesso
+LEFT JOIN TbGrupoMateria gm
+    ON gm.Id = p.IdGrupoMateria
+WHERE p.Pasta IN (...);`
+},
+{
+  id:"PRC-06", modulo:"Processos",
+  titulo:"Contar processos por fase",
+  objetivo:"Panorama de distribuição: quantas pastas há em cada fase. Útil antes de uma migração ou para dimensionar um impacto.",
+  tabelas:["TbProcessos"], campos:["CodFase"],
+  parametros:"Nada — a versão com GROUP BY varre tudo.",
+  observacoes:["Retorna só o código da fase. Para ver o nome, junte com TbFasesProc via CodFase."],
+  tags:["contagem","fase","panorama"],
+  sql:`SELECT COUNT(*)
+FROM TbProcessos;
+
+SELECT
+    CodFase,
+    COUNT(*) AS Qtde
+FROM TbProcessos
+GROUP BY CodFase
+ORDER BY Qtde DESC;`
+},
+{
+  id:"PRC-07", modulo:"Processos",
+  titulo:"Processos de uma fase específica",
+  objetivo:"Contar e depois olhar uma amostra das pastas que estão em determinada fase.",
+  tabelas:["TbProcessos"], campos:["CodFase"],
+  parametros:"O código da fase (exemplo usa 36).",
+  observacoes:["O TOP 20 é proposital: serve para ver o formato dos dados antes de rodar a consulta cheia. Tire só quando souber o volume."],
+  tags:["fase","amostra","TOP"],
+  sql:`SELECT COUNT(*)
+FROM TbProcessos
+WHERE CodFase = 36;
+
+SELECT TOP 20 *
+FROM TbProcessos
+WHERE CodFase = 36;`
+},
+{
+  id:"PRC-08", modulo:"Processos",
+  titulo:"Processos encerrados",
+  objetivo:"Listar pastas com situação de encerrado.",
+  tabelas:["TbProcessos"], campos:["Status","DtEncerramento"],
+  parametros:"O código de status.",
+  observacoes:["Status 5 foi o valor observado para encerrado nos atendimentos, mas não há tabela de domínio confirmada aqui. Antes de usar em resposta formal, confirme cruzando com DtEncerramento preenchida."],
+  tags:["encerrado","status"],
+  sql:`SELECT *
+FROM TbProcessos
+WHERE Status = 5;`
+},
+{
+  id:"PUB-01", modulo:"Publicações",
+  titulo:"Publicações de um período",
+  objetivo:"Recorte por intervalo de datas — o filtro mais usado da tabela.",
+  tabelas:["TbPublicacaoWS"], campos:["Data"],
+  parametros:"As duas datas do intervalo.",
+  observacoes:["Limite inferior fechado e superior aberto (>= e <). Evita perder publicações do último dia por causa da hora, e continua usando índice sobre Data — diferente de YEAR(Data) = 2024."],
+  tags:["período","data","ano","intervalo"],
+  sql:`SELECT TOP 50 *
+FROM TbPublicacaoWS
+WHERE Data >= '2024-01-01'
+  AND Data <  '2025-01-01'
+ORDER BY Data DESC;`
+},
+{
+  id:"PUB-02", modulo:"Publicações",
+  titulo:"Publicações de um dia específico",
+  objetivo:"Localizar o que entrou em uma data pontual, geralmente quando o cliente reclama de publicação não tratada.",
+  tabelas:["TbPublicacaoWS"], campos:["Data"],
+  parametros:"A data.",
+  observacoes:["O CAST na coluna força o cálculo linha a linha e descarta o índice de Data. A versão com intervalo abaixo devolve o mesmo resultado e é bem mais rápida em base grande."],
+  tags:["data","dia","CAST","performance"],
+  sql:`-- versão usada nos atendimentos
+SELECT *
+FROM TbPublicacaoWS
+WHERE CAST(Data AS DATE) = '2026-07-14';
+
+-- mesma resposta, sem descartar o índice
+SELECT *
+FROM TbPublicacaoWS
+WHERE Data >= '2026-07-14'
+  AND Data <  '2026-07-15';`
+},
+{
+  id:"PUB-03", modulo:"Publicações",
+  titulo:"Publicações por advogado responsável",
+  objetivo:"Tudo que está sob responsabilidade de um advogado, com ou sem recorte de status e período.",
+  tabelas:["TbPublicacaoWS"], campos:["IdAdvogadoResponsavel","StatusPublicacao","Data"],
+  parametros:"O IdAdvogadoResponsavel (exemplo usa 2076) e, se for o caso, o período.",
+  observacoes:["Atenção ao combinar com NOT IN: publicações com StatusPublicacao NULL não voltam. Veja PUB-04."],
+  tags:["advogado","responsável","filtro"],
+  sql:`SELECT *
+FROM TbPublicacaoWS
+WHERE IdAdvogadoResponsavel = 2076;
+
+-- combinada com status e período
+SELECT *
+FROM TbPublicacaoWS
+WHERE IdAdvogadoResponsavel = 2076
+  AND StatusPublicacao NOT IN (1,5)
+  AND Data >= '2024-01-01'
+  AND Data <  '2025-01-01';`
+},
+{
+  id:"PUB-04", modulo:"Publicações",
+  titulo:"Publicações fora dos status tratados",
+  objetivo:"Achar pendências: o que não está nos status considerados resolvidos.",
+  tabelas:["TbPublicacaoWS"], campos:["StatusPublicacao"],
+  parametros:"A lista de status a excluir — circulam duas versões, (1,5) e (1,4,5).",
+  observacoes:[
+    "Armadilha séria: NOT IN descarta silenciosamente os registros com StatusPublicacao NULL, e NULL é um dos valores que existem de fato nesta tabela. Ou seja, a versão simples esconde justamente parte das pendências que se quer achar.",
+    "A segunda versão abaixo inclui os nulos. Use ela em auditoria."
+  ],
+  tags:["status","pendência","NULL","auditoria","NOT IN"],
+  sql:`-- versão usada nos atendimentos (não traz os NULL)
+SELECT TOP 50 *
+FROM TbPublicacaoWS
+WHERE StatusPublicacao NOT IN (1,4,5)
+ORDER BY Data DESC;
+
+-- versão que também traz os NULL
+SELECT TOP 50 *
+FROM TbPublicacaoWS
+WHERE (StatusPublicacao NOT IN (1,4,5)
+       OR StatusPublicacao IS NULL)
+ORDER BY Data DESC;`
+},
+{
+  id:"PUB-05", modulo:"Publicações",
+  titulo:"Publicações pelo nome que aparece no texto",
+  objetivo:"Quando o advogado não está vinculado pelo Id, mas o nome dele consta no campo Nome capturado da publicação.",
+  tabelas:["TbPublicacaoWS"], campos:["Nome","StatusPublicacao"],
+  parametros:"O nome exato.",
+  observacoes:["Comparação exata: acento, abreviação e ordem do nome precisam bater. Se não retornar, tente LIKE com o sobrenome mais distintivo."],
+  tags:["nome","advogado","texto"],
+  sql:`SELECT TOP 50 *
+FROM TbPublicacaoWS
+WHERE StatusPublicacao <> 1
+  AND Nome = 'Renato Chagas Corrêa da Silva';`
+},
+{
+  id:"PUB-06", modulo:"Publicações",
+  titulo:"Descobrir o significado dos status",
+  objetivo:"Traduzir o código de StatusPublicacao para a descrição oficial.",
+  tabelas:["TbStatusPublicacao"], campos:["StatusPublicacao"],
+  parametros:"Nenhum.",
+  observacoes:["Na base foram observados apenas NULL, 1, 4 e 5 em uso. A tabela de domínio pode listar mais códigos previstos que nunca foram gravados."],
+  tags:["status","domínio","de-para"],
+  sql:`SELECT *
+FROM TbStatusPublicacao;`
+},
+{
+  id:"PUB-07", modulo:"Publicações",
+  titulo:"Processos encerrados que receberam publicação depois",
+  objetivo:"Consulta de auditoria: aponta pastas encerradas que continuaram recebendo publicação, o que normalmente indica encerramento indevido ou robô ainda ativo.",
+  tabelas:["TbProcessos","TbPublicacaoWS"],
+  campos:["DtEncerramento","Data","IdProc","Pasta","NumProcessoCNJ"],
+  parametros:"Nenhum — varre a base inteira. Considere recortar por período em base grande.",
+  observacoes:["O IS NOT NULL é redundante: pasta sem data de encerramento já fica de fora sozinha, porque comparar com NULL nunca dá verdadeiro. Mantido por deixar a intenção explícita — as duas versões circulam e dão o mesmo resultado."],
+  tags:["auditoria","encerramento","inconsistência","publicação"],
+  sql:`SELECT
+    p.Pasta,
+    p.NumProcessoCNJ,
+    p.DtEncerramento,
+    pub.Data AS DataPublicacao
+FROM TbProcessos p
+INNER JOIN TbPublicacaoWS pub
+    ON pub.IdProc = p.IdProc
+WHERE p.DtEncerramento IS NOT NULL
+  AND pub.Data > p.DtEncerramento
+ORDER BY p.Pasta, pub.Data;`
+},
+{
+  id:"PRZ-01", modulo:"Prazos",
+  titulo:"Prazos de uma pasta",
+  objetivo:"Listar os prazos vinculados a um processo, partindo do número da pasta.",
+  tabelas:["TbPrazos","TbProcessos"], campos:["IdPrazo","IdProc","CodTipoPrazo","Pasta"],
+  parametros:"O número da pasta.",
+  observacoes:["O JOIN com TbProcessos existe porque a busca vem sempre pela pasta, enquanto TbPrazos guarda o IdProc. Um dos documentos de origem menciona um campo Pasta dentro de TbPrazos — se ele existir mesmo, dá para simplificar; confirme com a CAT-03 antes."],
+  tags:["prazo","pasta","JOIN"],
+  sql:`SELECT
+    pr.IdPrazo,
+    p.Pasta,
+    pr.CodTipoPrazo
+FROM TbPrazos pr
+INNER JOIN TbProcessos p
+    ON p.IdProc = pr.IdProc
+WHERE p.Pasta = 1042;`
+},
+{
+  id:"PRZ-02", modulo:"Prazos",
+  titulo:"Conferir lista de prazos enviada pelo cliente",
+  objetivo:"Mesma consulta em lote, para confrontar Pasta × IdPrazo da planilha com o que existe no banco. Usada em validação de importação.",
+  tabelas:["TbPrazos","TbProcessos"], campos:["IdPrazo","Pasta","CodTipoPrazo"],
+  parametros:"A lista de pastas no IN.",
+  observacoes:["INNER JOIN aqui: pasta sem nenhum prazo não aparece no resultado. Se a pergunta for justamente 'quais pastas ficaram sem prazo', troque por LEFT JOIN partindo de TbProcessos."],
+  tags:["prazo","lote","conferência","importação","planilha"],
+  sql:`SELECT
+    p.Pasta,
+    pr.IdPrazo,
+    pr.CodTipoPrazo
+FROM TbPrazos pr
+INNER JOIN TbProcessos p
+    ON p.IdProc = pr.IdProc
+WHERE p.Pasta IN (...)
+ORDER BY p.Pasta;`
+},
+{
+  id:"DIL-01", modulo:"Diligências",
+  titulo:"Diligências de um processo",
+  objetivo:"Ver as diligências de uma pasta: quem cadastrou, quando, prazo limite e situação.",
+  tabelas:["TbDiligencias","TbProcessos"],
+  campos:["Id","IdProc","Data","DataLimite","UserCadastro","UserConclui","IdPrazos","IdAndamento"],
+  parametros:"A pasta, ou o IdProc se já tiver.",
+  observacoes:["O Id retornado aqui é o que alimenta a DOC-03 para achar os anexos da diligência."],
+  tags:["diligência","pasta","atendimento"],
+  sql:`-- pela pasta
+SELECT d.*
+FROM TbDiligencias d
+INNER JOIN TbProcessos p
+    ON p.IdProc = d.IdProc
+WHERE p.Pasta = 1042;
+
+-- direto pelo IdProc
+SELECT *
+FROM TbDiligencias
+WHERE IdProc = 1042;`
+},
+{
+  id:"DOC-01", modulo:"Documentos",
+  titulo:"Arquivos anexados a um processo",
+  objetivo:"Descobrir quais documentos estão no processo, quem anexou e quando. É a consulta que resolve a pergunta mais comum de atendimento sobre GED.",
+  tabelas:["TbArquivosProcesso"],
+  campos:["IdArquivoProcesso","IDProc","Pasta","NomeArquivo","NomeArquivoWeb","DtUpload","UserInclui","IdDiligencia","BucketName","NomeArquivoBucketS3"],
+  parametros:"O IdProc ou a pasta.",
+  observacoes:[
+    "UserInclui e DtUpload respondem quem anexou e quando — é o que o cliente costuma pedir formalmente.",
+    "NomeArquivo é o nome físico; NomeArquivoWeb é o que aparece na tela. Quando o cliente cita um nome que você não acha, teste os dois campos.",
+    "A tabela aceita busca por IDProc e por Pasta. Atenção à grafia do campo: aqui é IDProc, com D maiúsculo, diferente do IdProc das outras tabelas."
+  ],
+  tags:["documento","anexo","GED","upload","quem anexou","S3"],
+  sql:`SELECT *
+FROM TbArquivosProcesso
+WHERE IDProc = 988;
+
+-- também funciona pela pasta
+SELECT *
+FROM TbArquivosProcesso
+WHERE Pasta = 988;`
+},
+{
+  id:"DOC-02", modulo:"Documentos",
+  titulo:"Documentos vinculados a uma diligência",
+  objetivo:"Tabela de vínculo entre arquivo e diligência. Use depois da DIL-01, com o Id da diligência em mãos.",
+  tabelas:["TbArquivosDiligencias"],
+  campos:["Id","IdDiligencia","IdArquivoProcesso","Ordem","Status","IdUserCadastro","DtCadastro","IdUserDesvinculo","DtDesvinculo"],
+  parametros:"O IdDiligencia.",
+  observacoes:[
+    "Se não voltar nada, o documento pode existir no processo sem estar vinculado à diligência — confira pela DOC-01.",
+    "IdUserDesvinculo e DtDesvinculo preenchidos indicam que o vínculo foi desfeito. Vale olhar antes de afirmar que o anexo nunca existiu."
+  ],
+  tags:["documento","diligência","vínculo","anexo"],
+  sql:`SELECT *
+FROM TbArquivosDiligencias
+WHERE IdDiligencia = 2636;`
+},
+{
+  id:"REL-01", modulo:"Relatórios",
+  titulo:"Relatório gerencial completo do processo",
+  objetivo:"Extração com cerca de 80 colunas e 24 tabelas: cadastro, estrutura organizacional, partes, pedidos, valores, probabilidade, provisionamento, subsídios e causa raiz. Uma linha por pedido.",
+  tabelas:["TbProcessos","tbSpProcessoPedidos","tbPartes","tbPartesProcessos","TbAssuntoPedidoTipoSubsidio","TbEstruturaOrganizacional","TbUnidadesDemandantes","TbClientes","TbFiliais","tbTipoNucleo","TbTipoProcessoContabilidade","TbCategoriasProcesso","TbFasesProc","TbTipoProcesso","TbTipoSegmento","TbNaturezaJuridica","TbTipoInstancia","tbComarcas","tbCidades","tbEstado","TbAdvogados","tbEncerramentos","TbIndiceMonetario","TbCausaRaiz","TbTiposCategorias","TbGrupoMateria"],
+  campos:["IdProc","Pasta","VlrCausa","VlrProvisionado","Contingencia","TipoProbabilidade","StatusRegistro"],
+  parametros:"O filtro de processos no SELECT principal.",
+  observacoes:[
+    "SQL não arquivado. Esta ficha registra só a estrutura; o código completo precisa ser colado aqui para a documentação ficar utilizável.",
+    "Estrutura em quatro CTEs antes do SELECT principal: PedidosAgg soma valores por probabilidade (Possível, Provável, Remota, Inexistente) agrupando por IdProc; PartesIDs filtra processos com parte ativa (StatusRegistro = 1); Partes concatena Parte Cliente e Parte Contrária com dois STUFF + FOR XML PATH; SubsidioFlag marca se há item de subsídio vinculado via TbAssuntoPedidoTipoSubsidio.",
+    "Cada linha é um pedido, não um processo. Pasta com oito pedidos volta oito vezes — quem for consumir no Excel precisa saber disso antes de somar valores.",
+    "TbAdvogados entra três vezes, com aliases diferentes, para advogado principal, segundo e terceiro."
+  ],
+  tags:["relatório","gerencial","extração","CTE","STUFF","FOR XML","pedidos","partes"],
+  sql:""
+},
+{
+  id:"CAT-01", modulo:"Catálogo do banco",
+  titulo:"Listar todas as tabelas",
+  objetivo:"Ponto de partida quando não se sabe o nome exato do objeto.",
+  tabelas:["sys.tables"], campos:["name"],
+  parametros:"Nenhum.",
+  tags:["catálogo","estrutura","sys.tables","descoberta"],
+  sql:`SELECT name
+FROM sys.tables
+ORDER BY name;`
+},
+{
+  id:"CAT-02", modulo:"Catálogo do banco",
+  titulo:"Procurar tabela pelo pedaço do nome",
+  objetivo:"Achar a tabela certa quando existem várias com nome parecido — o caso das mais de 60 tabelas de documento.",
+  tabelas:["sys.tables"], campos:["name"],
+  parametros:"O trecho dentro do LIKE.",
+  observacoes:["Trechos que já renderam resultado: %Documento%, %Prazo%, %Publicacao%, %Arquivo%, %GED%, %Status%."],
+  tags:["catálogo","LIKE","descoberta","nome de tabela"],
+  sql:`SELECT name
+FROM sys.tables
+WHERE name LIKE '%Documento%'
+ORDER BY name;`
+},
+{
+  id:"CAT-03", modulo:"Catálogo do banco",
+  titulo:"Listar as colunas de uma tabela",
+  objetivo:"Ver os campos disponíveis sem precisar abrir a tabela ou rodar SELECT *.",
+  tabelas:["sys.columns","sys.tables"], campos:["name","column_id"],
+  parametros:"O nome da tabela.",
+  observacoes:["ORDER BY column_id devolve na ordem física da tabela, que costuma agrupar campos relacionados — mais fácil de ler que ordem alfabética."],
+  tags:["catálogo","colunas","campos","estrutura"],
+  sql:`SELECT c.name
+FROM sys.columns c
+INNER JOIN sys.tables t
+    ON c.object_id = t.object_id
+WHERE t.name = 'TbProcessos'
+ORDER BY c.column_id;`
+},
+{
+  id:"CAT-04", modulo:"Catálogo do banco",
+  titulo:"Descobrir em quais tabelas existe um campo",
+  objetivo:"A consulta mais usada nas investigações: dado um campo, achar todas as tabelas que o carregam. Foi assim que se mapeou o rastro das diligências e dos documentos.",
+  tabelas:["sys.tables","sys.columns"], campos:["name"],
+  parametros:"O nome do campo.",
+  observacoes:["Campos que já renderam mapeamento útil: IdDiligencia, IdProc, StatusPublicacao, CodFase, CodAdvogado, IdArquivoProcesso.","Com LIKE em vez de igualdade, pega variações de grafia — útil onde a base mistura IdProc e IDProc."],
+  tags:["catálogo","campo","relacionamento","investigação","mapeamento"],
+  sql:`SELECT
+    t.name AS Tabela,
+    c.name AS Campo
+FROM sys.tables t
+INNER JOIN sys.columns c
+    ON c.object_id = t.object_id
+WHERE c.name = 'IdDiligencia'
+ORDER BY t.name;
+
+-- variação por trecho do nome
+-- WHERE c.name LIKE '%StatusPublicacao%'`
+},
+{
+  id:"CAT-05", modulo:"Catálogo do banco",
+  titulo:"Chaves primárias e estrangeiras",
+  objetivo:"Descobrir a chave de uma tabela e quais vínculos formais existem entre elas.",
+  tabelas:["INFORMATION_SCHEMA.TABLE_CONSTRAINTS","INFORMATION_SCHEMA.KEY_COLUMN_USAGE","sys.foreign_keys"],
+  parametros:"Nenhum — filtre por tabela se o retorno for grande demais.",
+  tags:["catálogo","chave","PK","FK","relacionamento"],
+  sql:`-- chaves primárias
+SELECT
+    KU.TABLE_NAME,
+    KU.COLUMN_NAME
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS TC
+INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KU
+    ON TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME
+WHERE TC.CONSTRAINT_TYPE = 'PRIMARY KEY';
+
+-- chaves estrangeiras
+SELECT
+    OBJECT_NAME(parent_object_id) AS Tabela,
+    name AS ForeignKey
+FROM sys.foreign_keys
+ORDER BY Tabela;`
+},
+{
+  id:"CAT-06", modulo:"Catálogo do banco",
+  titulo:"Mapa completo de relacionamentos",
+  objetivo:"Lista tabela filha, campo filho, tabela pai e campo pai de todas as FKs. É o desenho do banco em forma de tabela.",
+  tabelas:["sys.foreign_key_columns","sys.foreign_keys"],
+  parametros:"Nenhum.",
+  observacoes:["Só enxerga relacionamento declarado como FK no banco. Vínculo que existe só por convenção (campo com mesmo nome, sem constraint) não aparece aqui — para esses, use a CAT-04."],
+  tags:["catálogo","relacionamento","FK","mapa","diagrama"],
+  sql:`SELECT
+    OBJECT_NAME(f.parent_object_id) AS TabelaFilha,
+    COL_NAME(fc.parent_object_id, fc.parent_column_id) AS CampoFilho,
+    OBJECT_NAME(f.referenced_object_id) AS TabelaPai,
+    COL_NAME(fc.referenced_object_id, fc.referenced_column_id) AS CampoPai
+FROM sys.foreign_key_columns fc
+INNER JOIN sys.foreign_keys f
+    ON fc.constraint_object_id = f.object_id
+ORDER BY TabelaFilha;`
+},
+{
+  id:"CAT-07", modulo:"Catálogo do banco",
+  titulo:"Índices, procedures, views, funções e triggers",
+  objetivo:"Inventário dos demais objetos do banco.",
+  tabelas:["sys.indexes","sys.procedures","sys.views","sys.objects","sys.triggers"],
+  parametros:"Nenhum.",
+  tags:["catálogo","índice","procedure","view","function","trigger"],
+  sql:`SELECT OBJECT_NAME(object_id) AS Tabela, name
+FROM sys.indexes
+ORDER BY Tabela;
+
+SELECT name FROM sys.procedures ORDER BY name;
+
+SELECT name FROM sys.views ORDER BY name;
+
+SELECT name FROM sys.objects WHERE type IN ('FN','IF','TF');
+
+SELECT name FROM sys.triggers;`
+},
+{
+  id:"CAT-08", modulo:"Catálogo do banco",
+  titulo:"Onde uma tabela é usada no código do banco",
+  objetivo:"Antes de mexer em algo, descobrir quais procedures, views e funções mencionam aquela tabela. Também serve para entender por onde o sistema grava um dado.",
+  tabelas:["sys.sql_modules"],
+  parametros:"O nome da tabela dentro do LIKE.",
+  observacoes:["Busca textual no código-fonte do objeto: pega menção em comentário também, e não pega SQL montado dinamicamente em string.","Já foi usada para TbPublicacaoWS, TbProcessos, TbPrazos, TbArquivosProcesso e TbDiligencias."],
+  tags:["catálogo","dependência","impacto","procedure","onde é usada"],
+  sql:`SELECT OBJECT_NAME(object_id) AS Objeto
+FROM sys.sql_modules
+WHERE definition LIKE '%TbPublicacaoWS%';`
+},
+];
+
+const TABELAS = [
+{
+  nome:"TbProcessos", modulo:"Processos",
+  descricao:"Tabela principal do sistema. Toda pasta cadastrada tem exatamente um registro aqui, e o IdProc é a chave que liga praticamente todos os outros módulos.",
+  campos:[
+    ["IdProc","Identificador interno — a chave usada em todas as tabelas filhas"],
+    ["Pasta","Número da pasta, é por onde o cliente e o atendimento se referem ao processo"],
+    ["NumProcesso","Número antigo/interno do processo"],
+    ["NumProcessoCNJ","Número CNJ"],
+    ["Status","Situação da pasta"],
+    ["CodFase","Fase atual — junta com TbFasesProc"],
+    ["CodAdvogado","Advogado responsável"],
+    ["IdAdvogado2 / IdAdvogado3","Advogados auxiliares"],
+    ["IdTipoProcesso","Tipo da ação — junta com TbTipoProcesso"],
+    ["IdGrupoMateria","Grupo de matéria — junta com TbGrupoMateria pelo campo Id"],
+    ["IdNaturezaJuridica","Natureza jurídica"],
+    ["IdCategoriaProcesso","Categoria da pasta"],
+    ["DtEncerramento","Data de encerramento"],
+    ["DtArquivamento","Data de arquivamento"],
+    ["DtCitacao / DtAjuizamento","Datas processuais"],
+    ["ControleCliente","Controle do cliente"],
+    ["VlrCausa","Valor da causa"],
+    ["VlrProvisionado / VlrProvisionadoCliente","Provisionamento"],
+    ["VlrCorrecoesJuros / VlrAcordo","Valores complementares"],
+    ["Contingencia","Contingência"],
+    ["OpiniaoExito / TipoProbabilidade","Prognóstico"],
+    ["IdCliente / IdFilial / IdComarca / IdLocalFato","Vínculos organizacionais e geográficos"]
+  ],
+  relaciona:["TbPublicacaoWS","TbPrazos","TbDiligencias","TbArquivosProcesso","TbAndamProcessual","TbCustasProcessuais","tbSpProcessoPedidos","tbPartesProcessos","TbDocumentoSubsidiosProcessos","TbProcessosInstanciaSuperior","TbProcessosSegundoGrau"]
+},
+{
+  nome:"TbPublicacaoWS", modulo:"Publicações",
+  descricao:"Publicações capturadas pelo robô, com o texto, o diário de origem, o advogado responsável e o status de tratativa.",
+  campos:[
+    ["Id","Identificador da publicação"],
+    ["IdProc","Processo vinculado"],
+    ["Pasta","Pasta vinculada"],
+    ["Processo","Número do processo como veio na captura"],
+    ["Nome","Nome encontrado no texto da publicação"],
+    ["Texto","Texto integral"],
+    ["Data","Data da publicação"],
+    ["DtBuscaPublicacaoWS","Data em que o robô capturou"],
+    ["DtDisponibilizacaoWebjur","Data de disponibilização"],
+    ["StatusPublicacao","Status — só NULL, 1, 4 e 5 observados na base"],
+    ["IdAdvogadoResponsavel","Advogado responsável"],
+    ["CodTipoPublicacao","Tipo da publicação"],
+    ["CodigoIntimacao","Código da intimação"],
+    ["Diario","Diário de origem"],
+    ["NomeArquivo","PDF da publicação"],
+    ["Blacklist","Indica descarte"],
+    ["AconteceuPrimeiraTratativa","Primeira tratativa"],
+    ["TratativaFinalizada","Tratativa concluída"],
+    ["Origem","Origem da publicação"]
+  ],
+  relaciona:["TbProcessos","TbAdvogados","TbStatusPublicacao"]
+},
+{
+  nome:"TbStatusPublicacao", modulo:"Publicações",
+  descricao:"Tabela de domínio que traduz o código de StatusPublicacao para a descrição. Localizada durante a investigação dos status.",
+  campos:[], relaciona:["TbPublicacaoWS"]
+},
+{
+  nome:"TbPrazos", modulo:"Prazos",
+  descricao:"Todos os prazos cadastrados, vindos de publicação, de diligência ou de lançamento manual.",
+  campos:[
+    ["IdPrazo","Identificador do prazo"],
+    ["IdProc","Processo"],
+    ["CodTipoPrazo","Tipo do prazo"],
+    ["DataPrazo","Data final"],
+    ["IdDiligencia","Diligência vinculada"],
+    ["Status","Situação"],
+    ["UserCadastro","Quem cadastrou"],
+    ["DtCadastro","Data do cadastro"],
+    ["Pasta","Citado em um dos levantamentos, mas as consultas sempre chegam na pasta via TbProcessos — confirmar se o campo existe mesmo aqui"]
+  ],
+  relaciona:["TbProcessos","TbDiligencias","TbAndamProcessual"]
+},
+{
+  nome:"TbPrazosSemAdv", modulo:"Prazos",
+  descricao:"Variante de prazos sem advogado vinculado. Também carrega IdDiligencia.",
+  campos:[], relaciona:["TbProcessos","TbDiligencias"]
+},
+{
+  nome:"TbDiligencias", modulo:"Diligências",
+  descricao:"Controle das diligências do processo — o que precisa ser feito, por quem, até quando.",
+  campos:[
+    ["Id","Identificador da diligência"],
+    ["IdProc","Processo"],
+    ["Data","Data da diligência"],
+    ["DataLimite","Prazo"],
+    ["DataConclusao","Conclusão"],
+    ["Status","Situação"],
+    ["UserCadastro","Quem cadastrou"],
+    ["UserConclui","Quem concluiu"],
+    ["IdPrazos","Prazo relacionado"],
+    ["IdAndamento","Andamento relacionado"],
+    ["DocEnviado","Indica documento enviado"],
+    ["Obs","Observações"]
+  ],
+  relaciona:["TbProcessos","TbArquivosDiligencias","TbArquivosProcesso","TbPrazos","tbDoctoDiligencia"]
+},
+{
+  nome:"TbArquivosProcesso", modulo:"Documentos",
+  descricao:"Tabela principal de armazenamento de documentos. É onde se descobre quem anexou um arquivo, quando, e em qual diligência ele está pendurado.",
+  campos:[
+    ["IdArquivoProcesso","Identificador do arquivo"],
+    ["IDProc","Processo — atenção à grafia, com D maiúsculo"],
+    ["Pasta","Pasta"],
+    ["NomeArquivo","Nome físico do arquivo"],
+    ["NomeArquivoWeb","Nome exibido na tela"],
+    ["DtUpload","Data do upload"],
+    ["UserInclui","Usuário que anexou"],
+    ["UserEdita / DtEdita","Última edição"],
+    ["IdDiligencia","Diligência vinculada"],
+    ["IdAndamento","Andamento vinculado"],
+    ["IdTipoDoctoDiligencia","Tipo do documento"],
+    ["BucketName","Bucket S3"],
+    ["NomeArquivoBucketS3","Nome no armazenamento"]
+  ],
+  relaciona:["TbProcessos","TbDiligencias","TbArquivosDiligencias"]
+},
+{
+  nome:"TbArquivosDiligencias", modulo:"Documentos",
+  descricao:"Tabela de vínculo entre arquivo e diligência. Guarda também o desvínculo, então dá para saber se um anexo foi retirado.",
+  campos:[
+    ["Id","Identificador"],
+    ["IdDiligencia","Diligência"],
+    ["IdArquivoProcesso","Documento"],
+    ["Ordem","Ordem de exibição"],
+    ["Status","Situação"],
+    ["IdUserCadastro","Quem vinculou"],
+    ["DtCadastro","Quando vinculou"],
+    ["IdUserDesvinculo","Quem desvinculou"],
+    ["DtDesvinculo","Quando desvinculou"]
+  ],
+  relaciona:["TbDiligencias","TbArquivosProcesso"]
+},
+{
+  nome:"tbSpProcessoPedidos", modulo:"Pedidos",
+  descricao:"Pedidos do processo. Cada linha é um pedido — uma pasta com vários pedidos aparece várias vezes, e não existe concatenação por ponto e vírgula.",
+  campos:[
+    ["IdProc","Processo"],
+    ["CodAssuntoPedido","Assunto do pedido"],
+    ["DescricaoPedido","Descrição"],
+    ["ProbExito","Probabilidade de êxito"],
+    ["ValorOriginal / ValorAtualizado / ValorPago","Valores"],
+    ["ValorParteContraria / ValorInterno / ValorPerito","Valores complementares"],
+    ["ValorCondenacao / ValorAcordo","Desfecho financeiro"],
+    ["DataPedido","Data"],
+    ["UserInclusao / UserAlteracao","Auditoria"]
+  ],
+  relaciona:["TbProcessos","TbAssuntoPedido","TbTiposCategorias"]
+},
+{
+  nome:"tbPartes / tbPartesProcessos", modulo:"Partes",
+  descricao:"tbPartes é o cadastro único da parte; tbPartesProcessos faz o vínculo com o processo e indica se é cliente ou parte contrária. O filtro de ativo aqui é StatusRegistro = 1.",
+  campos:[
+    ["IdProc","Processo (em tbPartesProcessos)"],
+    ["StatusRegistro","1 = ativo"]
+  ],
+  relaciona:["TbProcessos"]
+},
+{
+  nome:"TbAdvogados", modulo:"Apoio",
+  descricao:"Cadastro de advogados. Entra três vezes no relatório completo, para advogado principal, segundo e terceiro.",
+  campos:[["CodAdvogado","Identificador"],["NomeAdvogado","Nome"],["OAB","Número OAB"],["UF","UF da OAB"]],
+  relaciona:["TbProcessos","TbPublicacaoWS"]
+},
+{
+  nome:"Tabelas de domínio", modulo:"Apoio",
+  descricao:"Tabelas de parametrização usadas para traduzir os códigos do processo em descrição legível.",
+  campos:[
+    ["TbFasesProc","Fase atual — via CodFase"],
+    ["TbTipoProcesso","Tipo da ação: Reclamação Trabalhista, Ação Ordinária, Execução, Cumprimento de Sentença"],
+    ["TbGrupoMateria","Trabalhista, Cível, Administrativo, Tributário — junta pelo campo Id"],
+    ["TbNaturezaJuridica","Natureza jurídica"],
+    ["TbCategoriasProcesso","Categoria da pasta"],
+    ["TbTipoSegmento","Tipo de litígio"],
+    ["TbTipoInstancia","Instância"],
+    ["TbTiposCategorias","Objeto: Indenização, Horas Extras, FGTS, Dano Moral"],
+    ["TbAssuntoPedido","Descrição do pedido"],
+    ["TbCausaRaiz","Causa raiz — muito usada em importação"],
+    ["TbIndiceMonetario","SELIC, IPCA, INPC, IGP-M"],
+    ["tbEncerramentos","Motivo do encerramento"],
+    ["tbComarcas / tbCidades / tbEstado","Comarca, município e UF"],
+    ["TbEstruturaOrganizacional / TbUnidadesDemandantes / TbClientes / TbFiliais / tbTipoNucleo","Estrutura organizacional do cliente"]
+  ],
+  relaciona:["TbProcessos"]
+},
+];
+
+/* ========================= motor ========================= */
+const PALAVRAS = ["SELECT","FROM","WHERE","INNER","LEFT","RIGHT","FULL","OUTER","JOIN","ON","AS","AND","OR","NOT","IN","EXISTS","IS","NULL","CASE","WHEN","THEN","ELSE","END","ORDER","GROUP","BY","HAVING","DECLARE","TABLE","INSERT","INTO","VALUES","UPDATE","SET","DELETE","TOP","DISTINCT","UNION","ALL","WITH","BETWEEN","LIKE","INT","VARCHAR","NVARCHAR","DATE","DATETIME","CAST","CONVERT","COUNT","SUM","MAX","MIN","AVG","ISNULL","COALESCE","REPLACE","LEN","STUFF","XML","PATH","BEGIN","IF","EXEC","INDEX","DESC","ASC","OBJECT_NAME","COL_NAME","NOLOCK","OVER","PARTITION"];
+const RE_SQL = new RegExp("(--[^\\n]*)|('(?:''|[^'])*')|(@\\w+)|\\b(" + PALAVRAS.join("|") + ")\\b|\\b(\\d+)\\b","gi");
+
+function escapar(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function colorir(sql){
+  return escapar(sql).replace(RE_SQL,(m,com,str,va,kw,num)=>{
+    if(com) return '<span class="com">'+com+'</span>';
+    if(str) return '<span class="str">'+str+'</span>';
+    if(va)  return '<span class="var">'+va+'</span>';
+    if(kw)  return '<span class="kw">'+kw+'</span>';
+    if(num) return '<span class="num">'+num+'</span>';
+    return m;});
+}
+function copiar(texto){
+  try{
+    if(navigator.clipboard && window.isSecureContext){navigator.clipboard.writeText(texto);return true;}
+    const ta=document.createElement("textarea");ta.value=texto;
+    ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    const ok=document.execCommand("copy");document.body.removeChild(ta);return ok;
+  }catch(e){return false;}
+}
+
+CONSULTAS.forEach(c=>{
+  c._busca=[c.id,c.modulo,c.titulo,c.objetivo,c.parametros,(c.tabelas||[]).join(" "),
+            (c.campos||[]).join(" "),(c.tags||[]).join(" "),
+            (c.observacoes||[]).join(" "),c.sql].filter(Boolean).join(" ").toLowerCase();
+});
+TABELAS.forEach(t=>{
+  t._busca=[t.nome,t.modulo,t.descricao,(t.relaciona||[]).join(" "),
+            (t.campos||[]).map(p=>p.join(" ")).join(" ")].filter(Boolean).join(" ").toLowerCase();
+});
+
+let abaAtiva="consultas", filtroModulo=null;
+
+function montarFicha(c){
+  const art=document.createElement("article");
+  art.className="ficha";
+  const pendente=/pendente|não arquivad/i.test((c.observacoes||[]).join(" "));
+  let meta="";
+  if(c.tabelas&&c.tabelas.length) meta+="<dt>Tabelas</dt><dd>"+escapar(c.tabelas.join(", "))+"</dd>";
+  if(c.campos&&c.campos.length)   meta+="<dt>Campos-chave</dt><dd>"+escapar(c.campos.join(", "))+"</dd>";
+  if(c.parametros)                meta+="<dt>O que trocar a cada uso</dt><dd>"+escapar(c.parametros)+"</dd>";
+  if(c.tags&&c.tags.length)       meta+="<dt>Palavras-chave</dt><dd>"+escapar(c.tags.join(" · "))+"</dd>";
+  let nota="";
+  if(c.observacoes&&c.observacoes.length){
+    nota='<div class="nota"><strong>Antes de usar</strong><ul>'+
+         c.observacoes.map(o=>"<li>"+escapar(o)+"</li>").join("")+"</ul></div>";
+  }
+  art.innerHTML=
+    '<div class="lombada"><span>'+escapar(c.id)+'</span></div>'+
+    '<div class="corpo">'+
+      '<div class="cab"><div><h2>'+escapar(c.titulo)+'</h2>'+
+      (c.objetivo?'<p class="objetivo">'+escapar(c.objetivo)+'</p>':'')+'</div>'+
+      '<span class="selo'+(pendente?' alerta':'')+'">'+escapar(c.modulo)+'</span></div>'+
+      (meta?'<dl class="meta">'+meta+'</dl>':'')+
+      (c.sql?'<div class="sql-bloco"><div class="sql-barra"><span class="rotulo">T-SQL</span>'+
+        '<button class="copiar" type="button">Copiar</button></div>'+
+        '<pre><code>'+colorir(c.sql)+'</code></pre></div>':'')+
+      nota+
+    '</div>';
+  const b=art.querySelector(".copiar");
+  if(b) b.addEventListener("click",()=>{
+    const ok=copiar(c.sql);
+    b.textContent=ok?"Copiado":"Selecione manualmente";
+    setTimeout(()=>{b.textContent="Copiar";},1800);
+  });
+  return art;
+}
+
+function montarTabela(t){
+  const div=document.createElement("article");
+  div.className="tab-card";
+  let linhas=(t.campos||[]).map(p=>"<tr><td>"+escapar(p[0])+"</td><td>"+escapar(p[1]||"")+"</td></tr>").join("");
+  div.innerHTML=
+    '<span class="modulo">'+escapar(t.modulo)+'</span>'+
+    '<h2>'+escapar(t.nome)+'</h2>'+
+    (t.descricao?'<p class="desc">'+escapar(t.descricao)+'</p>':'')+
+    (linhas?'<table class="campos"><thead><tr><th>Campo</th><th>Para que serve</th></tr></thead><tbody>'+linhas+'</tbody></table>':'')+
+    ((t.relaciona&&t.relaciona.length)?'<div class="relac"><span>Liga com</span>'+
+      t.relaciona.map(r=>"<code>"+escapar(r)+"</code>").join("")+'</div>':'');
+  return div;
+}
+
+function termos(){return document.getElementById("busca").value.trim().toLowerCase().split(/\s+/).filter(Boolean);}
+
+function desenhar(){
+  const ts=termos();
+  const pc=document.getElementById("painel-consultas");
+  const pt=document.getElementById("painel-tabelas");
+
+  if(abaAtiva==="consultas"){
+    const vis=CONSULTAS.filter(c=>(!filtroModulo||c.modulo===filtroModulo)&&ts.every(p=>c._busca.includes(p)));
+    pc.innerHTML="";
+    if(!vis.length){pc.innerHTML='<div class="vazio"><p>Nenhuma consulta com esse termo.</p><p>Tente o nome de uma tabela, de um campo ou do módulo.</p></div>';}
+    else vis.forEach(c=>pc.appendChild(montarFicha(c)));
+    contar(vis.length,CONSULTAS.length,"consulta","consultas");
+  } else if(abaAtiva==="tabelas"){
+    const vis=TABELAS.filter(t=>(!filtroModulo||t.modulo===filtroModulo)&&ts.every(p=>t._busca.includes(p)));
+    pt.innerHTML="";
+    if(!vis.length){pt.innerHTML='<div class="vazio"><p>Nenhuma tabela com esse termo.</p><p>Tente o nome de um campo.</p></div>';}
+    else vis.forEach(t=>pt.appendChild(montarTabela(t)));
+    contar(vis.length,TABELAS.length,"tabela","tabelas");
+  } else {
+    document.getElementById("contador").textContent="";
+  }
+}
+function contar(n,t,s,p){
+  document.getElementById("contador").textContent=(n===t)?(t+" "+(t===1?s:p)):(n+" de "+t);
+}
+
+function montarChips(){
+  const cx=document.getElementById("chips");
+  cx.innerHTML="";
+  if(abaAtiva!=="consultas"&&abaAtiva!=="tabelas"){cx.hidden=true;return;}
+  cx.hidden=false;
+  const fonte=(abaAtiva==="consultas")?CONSULTAS:TABELAS;
+  [...new Set(fonte.map(x=>x.modulo).filter(Boolean))].forEach(m=>{
+    const b=document.createElement("button");
+    b.className="chip";b.type="button";b.textContent=m;
+    b.setAttribute("aria-pressed",String(m===filtroModulo));
+    b.addEventListener("click",()=>{
+      filtroModulo=(filtroModulo===m)?null:m;
+      [...cx.children].forEach(o=>o.setAttribute("aria-pressed",String(o.textContent===filtroModulo)));
+      desenhar();
+    });
+    cx.appendChild(b);
+  });
+}
+
+document.querySelectorAll(".aba-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    abaAtiva=btn.dataset.painel;
+    filtroModulo=null;
+    document.querySelectorAll(".aba-btn").forEach(o=>o.setAttribute("aria-selected",String(o===btn)));
+    document.querySelectorAll(".painel").forEach(p=>{p.hidden=(p.id!=="painel-"+abaAtiva);});
+    montarChips();desenhar();
+  });
+});
+document.getElementById("busca").addEventListener("input",desenhar);
+montarChips();desenhar();
+</script>
+</body>
+</html>

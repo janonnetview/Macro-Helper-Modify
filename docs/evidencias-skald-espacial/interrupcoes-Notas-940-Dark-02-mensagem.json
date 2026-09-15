@@ -1,0 +1,362 @@
+﻿{
+  "Tela": "Notas",
+  "Tema": "Dark",
+  "QuantidadeInicial": 1,
+  "Dimensoes": "940x600",
+  "Minimo": "940;600",
+  "DpiRenderizacao": 96,
+  "DpiArvore": 1,
+  "Id": "AN-NOTES-LOWER",
+  "Hospedeiro": "263,66,664,521",
+  "Candidato": "275,407,623,168",
+  "MaximoEstatico": 152,
+  "MaximoComPercurso": 152,
+  "Cabe": true,
+  "MapaAtivo": true,
+  "Fase": "rolagem-ou-extensao",
+  "Versao": 4,
+  "Situacao": "aprovado-no-ensaio",
+  "PontosDeInputVerificados": 0,
+  "Corpo": null,
+  "Percurso": [
+    "283,503,64,64",
+    "403,503,64,64",
+    "283,503,64,64"
+  ],
+  "Rolagem": 0,
+  "SobreposicoesVisiveis": [],
+  "Elementos": [
+    {
+      "Elemento": "CurrentView",
+      "Original": "263,66,664,521",
+      "Visivel": "263,66,664,521",
+      "Recortado": false
+    },
+    {
+      "Elemento": "ScrollContentPresenter",
+      "Original": "263,276,647,311",
+      "Visivel": "263,276,647,311",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-002-TextBlock-",
+      "Original": "295,90,484,35",
+      "Visivel": "295,90,484,35",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-003-TextBlock-",
+      "Original": "295,130,484,17",
+      "Visivel": "295,130,484,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-004-Button-",
+      "Original": "779,100,116,38",
+      "Visivel": "779,100,116,38",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-005-TextBlock-",
+      "Original": "795,112,13,13",
+      "Visivel": "795,112,13,13",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-006-TextBlock-",
+      "Original": "815,110,64,17",
+      "Visivel": "815,110,64,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-007-TextBlock-",
+      "Original": "307,192,576,16",
+      "Visivel": "307,192,576,16",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-008-TextBox-",
+      "Original": "291,236,608,40",
+      "Visivel": "291,236,608,40",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-009-TextBlock-",
+      "Original": "305,250,594,12",
+      "Visivel": "305,250,594,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-010-TextBlock-",
+      "Original": "325,248,574,17",
+      "Visivel": "325,248,574,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-011-Button-",
+      "Original": "291,290,591,89",
+      "Visivel": "291,290,591,89",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-012-Border-",
+      "Original": "291,290,591,89",
+      "Visivel": "291,290,591,89",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-013-TextBlock-",
+      "Original": "309,305,102,18",
+      "Visivel": "309,305,102,18",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-014-TextBlock-",
+      "Original": "309,328,429,15",
+      "Visivel": "309,328,429,15",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-015-TextBlock-",
+      "Original": "309,349,429,14",
+      "Visivel": "309,349,429,14",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-016-Button-",
+      "Original": "738,305,30,30",
+      "Visivel": "738,305,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-017-TextBlock-",
+      "Original": "747,314,12,12",
+      "Visivel": "747,314,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-018-Button-",
+      "Original": "770,305,30,30",
+      "Visivel": "770,305,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-019-TextBlock-",
+      "Original": "779,314,12,12",
+      "Visivel": "779,314,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-020-Button-",
+      "Original": "802,305,30,30",
+      "Visivel": "802,305,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-021-TextBlock-",
+      "Original": "811,314,12,12",
+      "Visivel": "811,314,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-022-Button-",
+      "Original": "834,305,30,30",
+      "Visivel": "834,305,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-023-TextBlock-",
+      "Original": "843,314,12,12",
+      "Visivel": "843,314,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-024-ScrollBar-",
+      "Original": "910,276,17,311",
+      "Visivel": "910,276,17,311",
+      "Recortado": false
+    },
+    {
+      "Elemento": "ItemsControl-Notas-hierarquia-completa",
+      "Original": "291,290,591,89",
+      "Visivel": "291,290,591,89",
+      "Recortado": false
+    },
+    {
+      "Elemento": "ultimo-container-inclui-subcategorias",
+      "Original": "291,290,591,89",
+      "Visivel": "291,290,591,89",
+      "Recortado": false
+    }
+  ],
+  "Comandos": [
+    {
+      "Nome": "NavigarParaAjudaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaCategoriasCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaCompromissosCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaConfiguracoesCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaDashboardCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaMacrosCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaManualSqlCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaNotasCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaTarefasCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaVariaveisCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SairCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ToggleMacrosExpansaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AplicarTemaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "CarregarSaudeCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AplicarCorAccentCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "IniciarCapturaAtalhoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "RefazerTourCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "RestaurarAtalhosPadraoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SalvarConfiguracoesCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SalvarGatilhoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "TestarNotificacaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AlternarItemCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AlternarVisualizacaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AbrirNotaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "CancelarExclusaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ConfirmarExclusaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "CopiarConteudoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ExcluirCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "FixarCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "FecharEditorCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NovaNotaCommand",
+      "Execucoes": 1
+    },
+    {
+      "Nome": "SalvarCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "CancelarFormCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "EditarCategoriaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ExcluirCategoriaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NovaCategoriaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SelecionarIconeCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SalvarCategoriaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ConcluirCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NovaMacroCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "VerCompromissosCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "VerTarefasCommand",
+      "Execucoes": 0
+    }
+  ]
+}

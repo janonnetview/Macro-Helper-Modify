@@ -1,0 +1,247 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        ══════════════════════════════════════════════════════════════════════════════
+        LIGHT — "Frosted Daylight"
+        ══════════════════════════════════════════════════════════════════════════════
+
+        O mesmo sistema do tema escuro, invertido onde precisa ser: aqui o filme de vidro é
+        BRANCO em alta opacidade sobre um fundo cinza-frio, e a borda é preta com alfa
+        baixíssimo. A gramática não muda — Surface0 → Glass → Elevated → Interactive — só a
+        direção da luz.
+
+        O verde continua sendo a identidade, mas em duas tintas diferentes: o verde preenche
+        (com texto quase preto em cima) e uma versão mais fechada dele escreve, porque o mesmo
+        verde que preenche não se lê sobre branco. Quem escurece a versão de texto quando a
+        pessoa troca a cor de destaque é o ThemeService.
+    -->
+
+    <!-- ═══ CORES BASE ═══════════════════════════════════════════════════════════ -->
+    <Color x:Key="BackdropDeepColor">#D4DDE9</Color>
+    <Color x:Key="BackgroundColor">#F1F4F8</Color>
+    <Color x:Key="SurfaceColor">#FFFFFF</Color>
+    <Color x:Key="SurfaceElevatedColor">#F7F9FC</Color>
+    <Color x:Key="BorderColor">#D3DAE2</Color>
+    <Color x:Key="BorderLightColor">#E5EAF0</Color>
+    <Color x:Key="TextPrimaryColor">#111820</Color>
+    <Color x:Key="TextSecondaryColor">#59636D</Color>
+    <Color x:Key="TextMutedColor">#8A939C</Color>
+
+    <!-- ═══ ACCENT — o verde do SK ═══════════════════════════════════════════════ -->
+    <Color x:Key="AccentColor">#7FA33D</Color>
+    <Color x:Key="AccentHoverColor">#6C8E30</Color>
+    <Color x:Key="AccentTextColor">#6C8B34</Color>
+    <Color x:Key="AccentLightColor">#267FA33D</Color>
+    <Color x:Key="AccentSoftColor">#167FA33D</Color>
+    <Color x:Key="AccentGlowColor">#667FA33D</Color>
+    <Color x:Key="AccentForegroundColor">#0A0F04</Color>
+    <Color x:Key="AccentDeepColor">#4E7327</Color>
+
+    <Color x:Key="SecondaryColor">#DDE3EA</Color>
+    <Color x:Key="SecondaryForegroundColor">#3D4751</Color>
+    <Color x:Key="CyanColor">#4F9A8D</Color>
+    <Color x:Key="CyanSoftColor">#12000000</Color>
+    <Color x:Key="CyanForegroundColor">#46525C</Color>
+
+    <Color x:Key="SuccessColor">#2E9E6B</Color>
+    <Color x:Key="SuccessBgColor">#E4F5EC</Color>
+    <Color x:Key="DangerColor">#D9543C</Color>
+    <Color x:Key="DangerBgColor">#FBE9E5</Color>
+    <Color x:Key="WarningColor">#B98322</Color>
+    <Color x:Key="WarningBgColor">#FBF2DF</Color>
+
+    <Color x:Key="SidebarColor">#F7F9FC</Color>
+    <Color x:Key="SidebarItemHoverColor">#0A000000</Color>
+    <Color x:Key="SidebarItemActiveColor">#12000000</Color>
+    <Color x:Key="SidebarTextColor">#59636D</Color>
+    <Color x:Key="SidebarTextActiveColor">#111820</Color>
+    <Color x:Key="SidebarMutedColor">#8A939C</Color>
+    <Color x:Key="SidebarAccentColor">#5C7F24</Color>
+    <Color x:Key="SidebarBorderColor">#12000000</Color>
+
+    <Color x:Key="InputBgColor">#FFFFFF</Color>
+    <Color x:Key="InputBorderColor">#1F000000</Color>
+    <Color x:Key="InputFocusBorderColor">#7FA33D</Color>
+
+    <Color x:Key="TableHeaderBgColor">#08000000</Color>
+    <Color x:Key="TableRowHoverColor">#0A000000</Color>
+    <Color x:Key="TableRowAltColor">#05000000</Color>
+    <Color x:Key="ScrollBarColor">#33000000</Color>
+
+    <Color x:Key="PopupBgColor">#FFFFFF</Color>
+    <Color x:Key="PopupBorderColor">#D3DAE2</Color>
+
+    <Color x:Key="BadgeBgColor">#0E000000</Color>
+    <Color x:Key="BadgeTextColor">#59636D</Color>
+
+    <Color x:Key="ShadowColor">#33111820</Color>
+    <Color x:Key="TitleBarBgColor">#00FFFFFF</Color>
+
+    <!-- Vidro: no claro o filme é branco em alta opacidade sobre o fundo cinza-frio. -->
+    <Color x:Key="GlassFilmTopColor">#D4FFFFFF</Color>
+    <Color x:Key="GlassFilmBottomColor">#A8FFFFFF</Color>
+    <Color x:Key="GlassHoverTopColor">#F2FFFFFF</Color>
+    <Color x:Key="GlassHoverBottomColor">#D9FFFFFF</Color>
+    <Color x:Key="GlassActiveTopColor">#FFFFFFFF</Color>
+    <Color x:Key="GlassActiveBottomColor">#EDFFFFFF</Color>
+    <Color x:Key="GlassElevatedTopColor">#FAFFFFFF</Color>
+    <Color x:Key="GlassElevatedBottomColor">#E0FFFFFF</Color>
+    <Color x:Key="BorderSubtleColor">#14000000</Color>
+    <Color x:Key="BorderStrongColor">#26000000</Color>
+    <Color x:Key="GlassEdgeColor">#CCFFFFFF</Color>
+
+    <!-- ═══ BRUSHES ══════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="BackgroundBrush"           Color="{StaticResource BackgroundColor}"/>
+    <SolidColorBrush x:Key="BackdropDeepBrush"         Color="{StaticResource BackdropDeepColor}"/>
+    <SolidColorBrush x:Key="SurfaceBrush"              Color="{StaticResource SurfaceColor}"/>
+    <SolidColorBrush x:Key="SurfaceElevatedBrush"      Color="{StaticResource SurfaceElevatedColor}"/>
+    <SolidColorBrush x:Key="BorderBrush"               Color="{StaticResource BorderColor}"/>
+    <SolidColorBrush x:Key="BorderLightBrush"          Color="{StaticResource BorderLightColor}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush"          Color="{StaticResource TextPrimaryColor}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush"        Color="{StaticResource TextSecondaryColor}"/>
+    <SolidColorBrush x:Key="TextMutedBrush"            Color="{StaticResource TextMutedColor}"/>
+    <SolidColorBrush x:Key="AccentBrush"               Color="{StaticResource AccentColor}"/>
+    <SolidColorBrush x:Key="AccentHoverBrush"          Color="{StaticResource AccentHoverColor}"/>
+    <SolidColorBrush x:Key="AccentLightBrush"          Color="{StaticResource AccentLightColor}"/>
+    <SolidColorBrush x:Key="AccentSoftBrush"           Color="{StaticResource AccentSoftColor}"/>
+    <SolidColorBrush x:Key="AccentGlowBrush"           Color="{StaticResource AccentGlowColor}"/>
+    <SolidColorBrush x:Key="AccentTextBrush"           Color="{StaticResource AccentTextColor}"/>
+    <SolidColorBrush x:Key="AccentForegroundBrush"     Color="{StaticResource AccentForegroundColor}"/>
+    <SolidColorBrush x:Key="SecondaryBrush"            Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryForegroundBrush"  Color="{StaticResource SecondaryForegroundColor}"/>
+    <SolidColorBrush x:Key="CyanBrush"                 Color="{StaticResource CyanColor}"/>
+    <SolidColorBrush x:Key="CyanSoftBrush"             Color="{StaticResource CyanSoftColor}"/>
+    <SolidColorBrush x:Key="CyanForegroundBrush"       Color="{StaticResource CyanForegroundColor}"/>
+    <SolidColorBrush x:Key="SuccessBrush"              Color="{StaticResource SuccessColor}"/>
+    <SolidColorBrush x:Key="SuccessBgBrush"            Color="{StaticResource SuccessBgColor}"/>
+    <SolidColorBrush x:Key="DangerBrush"               Color="{StaticResource DangerColor}"/>
+    <SolidColorBrush x:Key="DangerBgBrush"             Color="{StaticResource DangerBgColor}"/>
+    <SolidColorBrush x:Key="WarningBrush"              Color="{StaticResource WarningColor}"/>
+    <SolidColorBrush x:Key="WarningBgBrush"            Color="{StaticResource WarningBgColor}"/>
+    <SolidColorBrush x:Key="SidebarBrush"              Color="{StaticResource SidebarColor}"/>
+    <SolidColorBrush x:Key="SidebarItemHoverBrush"     Color="{StaticResource SidebarItemHoverColor}"/>
+    <SolidColorBrush x:Key="SidebarItemActiveBrush"    Color="{StaticResource SidebarItemActiveColor}"/>
+    <SolidColorBrush x:Key="SidebarTextBrush"          Color="{StaticResource SidebarTextColor}"/>
+    <SolidColorBrush x:Key="SidebarTextActiveBrush"    Color="{StaticResource SidebarTextActiveColor}"/>
+    <SolidColorBrush x:Key="SidebarMutedBrush"         Color="{StaticResource SidebarMutedColor}"/>
+    <SolidColorBrush x:Key="SidebarAccentBrush"        Color="{StaticResource SidebarAccentColor}"/>
+    <SolidColorBrush x:Key="SidebarBorderBrush"        Color="{StaticResource SidebarBorderColor}"/>
+    <SolidColorBrush x:Key="InputBgBrush"              Color="{StaticResource InputBgColor}"/>
+    <SolidColorBrush x:Key="InputBorderBrush"          Color="{StaticResource InputBorderColor}"/>
+    <SolidColorBrush x:Key="InputFocusBorderBrush"     Color="{StaticResource InputFocusBorderColor}"/>
+    <SolidColorBrush x:Key="TableHeaderBgBrush"        Color="{StaticResource TableHeaderBgColor}"/>
+    <SolidColorBrush x:Key="TableRowHoverBrush"        Color="{StaticResource TableRowHoverColor}"/>
+    <SolidColorBrush x:Key="TableRowAltBrush"          Color="{StaticResource TableRowAltColor}"/>
+    <SolidColorBrush x:Key="ScrollBarBrush"            Color="{StaticResource ScrollBarColor}"/>
+    <SolidColorBrush x:Key="PopupBgBrush"              Color="{StaticResource PopupBgColor}"/>
+    <SolidColorBrush x:Key="PopupBorderBrush"          Color="{StaticResource PopupBorderColor}"/>
+    <SolidColorBrush x:Key="BadgeBgBrush"              Color="{StaticResource BadgeBgColor}"/>
+    <SolidColorBrush x:Key="BadgeTextBrush"            Color="{StaticResource BadgeTextColor}"/>
+    <SolidColorBrush x:Key="TitleBarBgBrush"           Color="{StaticResource TitleBarBgColor}"/>
+
+    <!-- ═══ SUPERFÍCIES DE VIDRO ═════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="Surface0Brush" Color="{StaticResource BackgroundColor}"/>
+    <SolidColorBrush x:Key="Surface1Brush" Color="{StaticResource SurfaceColor}"/>
+
+    <LinearGradientBrush x:Key="SurfaceGlassBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource GlassFilmTopColor}"    Offset="0"/>
+        <GradientStop Color="{StaticResource GlassFilmBottomColor}" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="SurfaceGlassHoverBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource GlassHoverTopColor}"    Offset="0"/>
+        <GradientStop Color="{StaticResource GlassHoverBottomColor}" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="SurfaceGlassActiveBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource GlassActiveTopColor}"    Offset="0"/>
+        <GradientStop Color="{StaticResource GlassActiveBottomColor}" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="SurfaceGlassElevatedBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource GlassElevatedTopColor}"    Offset="0"/>
+        <GradientStop Color="{StaticResource GlassElevatedBottomColor}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SurfaceInsetBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#0D000000" Offset="0"/>
+        <GradientStop Color="#06000000" Offset="1"/>
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtleColor}"/>
+    <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrongColor}"/>
+
+    <LinearGradientBrush x:Key="GlassEdgeBrush" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#00FFFFFF" Offset="0"/>
+        <GradientStop Color="{StaticResource GlassEdgeColor}" Offset="0.5"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- ═══ FUNDO AMBIENTE ═══════════════════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="AmbientBackdropBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#DFE6EF" Offset="0"/>
+        <GradientStop Color="#D4DDE9" Offset="0.55"/>
+        <GradientStop Color="#C9D4E3" Offset="1"/>
+    </LinearGradientBrush>
+    <RadialGradientBrush x:Key="AmbientGlowAccentBrush" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <GradientStop Color="#33A7C957" Offset="0"/>
+        <GradientStop Color="#12A7C957" Offset="0.45"/>
+        <GradientStop Color="#00A7C957" Offset="1"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="AmbientGlowCoolBrush" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <GradientStop Color="#2E7FA8E0" Offset="0"/>
+        <GradientStop Color="#127FA8E0" Offset="0.45"/>
+        <GradientStop Color="#007FA8E0" Offset="1"/>
+    </RadialGradientBrush>
+
+    <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource AccentDeepColor}" Offset="0"/>
+        <GradientStop Color="#7FA332" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- ═══ JANELA FLUTUANTE ═══════════════════════════════════════════════════════ -->
+    <!-- Luzes de canto — mesma gramática do escuro (ver Dark.xaml): fundo de um Border com
+         raio, para o brilho seguir a curva em vez de ser cortado num retângulo. No claro a
+         luz é mais presente porque tem menos contraste para trabalhar. -->
+    <RadialGradientBrush x:Key="GlowCornerTopLeftBrush"
+                         Center="0.02,-0.04" GradientOrigin="0.02,-0.04" RadiusX="0.50" RadiusY="0.92">
+        <GradientStop Color="#3DA7C957" Offset="0"/>
+        <GradientStop Color="#14A7C957" Offset="0.45"/>
+        <GradientStop Color="#00A7C957" Offset="1"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="GlowCornerTopRightBrush"
+                         Center="0.88,-0.14" GradientOrigin="0.88,-0.14" RadiusX="0.42" RadiusY="1.15">
+        <GradientStop Color="#3DA7C957" Offset="0"/>
+        <GradientStop Color="#14A7C957" Offset="0.45"/>
+        <GradientStop Color="#00A7C957" Offset="1"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="GlowCornerBottomRightBrush"
+                         Center="1.02,1.06" GradientOrigin="1.02,1.06" RadiusX="0.46" RadiusY="0.88">
+        <GradientStop Color="#2E7FA8E0" Offset="0"/>
+        <GradientStop Color="#127FA8E0" Offset="0.45"/>
+        <GradientStop Color="#007FA8E0" Offset="1"/>
+    </RadialGradientBrush>
+
+    <LinearGradientBrush x:Key="FloatSurfaceBrush" StartPoint="0,0" EndPoint="0.35,1">
+        <GradientStop Color="#FCFFFFFF" Offset="0"/>
+        <GradientStop Color="#FAF7F9FC" Offset="0.45"/>
+        <GradientStop Color="#F8EFF3F8" Offset="1"/>
+    </LinearGradientBrush>
+    <!-- A borda de tudo que flutua: janela solta, popup e modal. Ela é a única separação
+         entre o cartão e o que estiver atrás — nenhuma dessas superfícies tem sombra, nem a
+         do WPF nem a do sistema — e por isso é mais forte que a borda de um card comum. -->
+    <SolidColorBrush x:Key="FloatBorderBrush" Color="#40111820"/>
+
+    <!-- ═══ SOMBRAS ══════════════════════════════════════════════════════════════
+         No claro a sombra é insinuação, não contorno. Três coisas mudam em relação ao
+         escuro: a cor não é preta (é um azul-ardósia, que combina com o cinza-frio do
+         fundo em vez de sujá-lo), a opacidade cai pela metade e o borrão abre bem mais
+         que o deslocamento — é a razão blur/depth alta que faz a mancha morrer macia
+         nos cantos em vez de terminar em ponta.
+
+         RenderingBias="Quality" não é detalhe: no modo Performance o WPF borra numa
+         resolução menor e devolve o resultado ampliado, e é daí que saíam os bicos nas
+         quinas arredondadas. -->
+    <DropShadowEffect x:Key="ShadowSoft"  Color="#24334A" BlurRadius="26" ShadowDepth="3"  Opacity="0.10" Direction="270" RenderingBias="Quality"/>
+    <DropShadowEffect x:Key="ShadowGlass" Color="#24334A" BlurRadius="44" ShadowDepth="8"  Opacity="0.14" Direction="270" RenderingBias="Quality"/>
+    <DropShadowEffect x:Key="ShadowFloat" Color="#24334A" BlurRadius="70" ShadowDepth="14" Opacity="0.20" Direction="270" RenderingBias="Quality"/>
+
+</ResourceDictionary>

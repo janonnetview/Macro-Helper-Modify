@@ -1,0 +1,57 @@
+<UserControl x:Class="MacroHelper.UI.Controls.SeletorDeData"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:h="clr-namespace:MacroHelper.UI.Helpers"
+             Height="38" Width="132">
+
+    <Grid>
+        <!-- Digitar continua sendo o caminho mais rápido para quem sabe a data; o calendário
+             existe para quem precisa olhar o mês antes de decidir. -->
+        <TextBox x:Name="Campo" Style="{StaticResource InputStyle}" MaxLength="10"
+                 Padding="12,0,34,0"
+                 h:MascaraTexto.Formato="Data"
+                 Text="{Binding Texto, RelativeSource={RelativeSource AncestorType=UserControl},
+                        UpdateSourceTrigger=PropertyChanged}"/>
+
+        <TextBlock Text="dd/mm/aaaa" FontSize="13" IsHitTestVisible="False"
+                   Foreground="{DynamicResource TextMutedBrush}"
+                   VerticalAlignment="Center" Margin="13,0,0,0">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Texto, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                     Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <Button x:Name="BotaoCalendario" Click="AbrirCalendario"
+                Style="{StaticResource ButtonIconOnly}"
+                HorizontalAlignment="Right" VerticalAlignment="Center"
+                Width="26" Height="26" Margin="0,0,6,0"
+                ToolTip="Escolher no calendário">
+            <TextBlock Text="&#xE787;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
+
+        <Popup x:Name="PopupCalendario" StaysOpen="False" AllowsTransparency="True"
+               Placement="Bottom" PlacementTarget="{Binding ElementName=Campo}"
+               PopupAnimation="Slide" VerticalOffset="4">
+            <!-- Mesmo desenho do dropdown do ComboBox: popup é sempre opaco, com a borda
+                 translúcida e a sombra difusa do sistema. A margem dá espaço para a sombra
+                 cair sem ser recortada pelo Popup. -->
+            <Border Background="{DynamicResource PopupBgBrush}"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    BorderThickness="1" CornerRadius="{StaticResource RadiusLg}" Padding="8"
+                    Margin="0,0,14,14"
+                    Effect="{DynamicResource ShadowGlass}">
+                <Calendar x:Name="Calendario" SelectedDatesChanged="AoEscolherData"/>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>

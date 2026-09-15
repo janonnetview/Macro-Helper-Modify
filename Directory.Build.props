@@ -1,0 +1,29 @@
+<Project>
+
+  <!--
+    Herdado por todo projeto abaixo desta pasta. Existe para que a régua de qualidade fique num
+    lugar só, em vez de repetida em cinco .csproj que podem divergir sem ninguém notar.
+  -->
+  <PropertyGroup>
+    <!--
+      Warning vira erro. Num projeto mantido por uma pessoa, aviso de compilador é a coisa mais
+      fácil do mundo de ignorar: aparece no meio de 40 linhas de saída, o build "passa", e seis
+      meses depois ninguém sabe quais eram intencionais. Como erro, ou some ou é suprimido com
+      um NoWarn e um comentário dizendo por quê — que é o caso do WFAC010 em MacroHelper.UI.
+    -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Referência nula é a classe de bug mais comum em C#; o compilador já sabe apontá-la. -->
+    <Nullable>enable</Nullable>
+
+    <!-- As regras de estilo (IDExxxx) valem no build, não só dentro do editor. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!--
+      Determinístico: o mesmo código-fonte produz o mesmo binário. É o que permite comparar
+      duas compilações e concluir alguma coisa da diferença.
+    -->
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+</Project>

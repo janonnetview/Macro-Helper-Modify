@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    # A versão vem do csproj, que é a fonte única (ver o comentário lá).
+    # Antes este passo INVENTAVA "1.2.0.<nº da execução>" e reescrevia o csproj para casar —
+    # o número publicado não tinha relação com o que está versionado no repositório, e mudava
+    # a cada push mesmo sem nenhuma mudança de versão.
+    - name: Ler versão do csproj
+      run: |
+        $csproj = [xml](Get-Content "MacroHelper.UI/MacroHelper.UI.csproj")
+        $ver = @($csproj.Project.PropertyGroup.Version) | Where-Object { $_ } | Select-Object -First 1
+        if (-not $ver) { throw "Nao achei <Version> em MacroHelper.UI.csproj" }
+        echo "VER=$ver" >> $env:GITHUB_ENV
+      shell: pwsh
+
+    # Portão: nada vira release sem os testes passarem. É barato (segundos, sem rede) e é a
+    # diferença entre "publiquei uma versão quebrada" e "o workflow falhou antes de publicar".
+    - name: Testar
+      run: dotnet test MacroHelper.sln -c Release
+
+    - name: Publicar
+      run: dotnet publish MacroHelper.UI -c Release -r win-x64 --self-contained true -o publish
+
+    - name: Zipar pasta de publicação
+      run: Compress-Archive -Path "publish/*" -DestinationPath "MacroHelper.zip" -Force
+      shell: pwsh
+
+    # Remove só a release DESTA versão, se já existir — é o que permite republicar a mesma
+    # versão sem colidir a tag. A etapa anterior apagava TODAS as releases e tags do repositório
+    # a cada push, o que jogava fora o histórico inteiro de versões para resolver um conflito
+    # de nome.
+    - name: Remover a release desta versão, se existir
+      run: gh release delete "v$env:VER" --yes --cleanup-tag
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: pwsh
+      continue-on-error: true
+
+    - name: Criar release
+      run: |
+        $data = (Get-Date).ToString("dd/MM/yyyy HH:mm")
+        gh release create "v$env:VER" "MacroHelper.zip" `
+          --title "MacroHelper v$env:VER" `
+          --notes "Versao $env:VER - publicada automaticamente em $data.`n`nExtrai o ZIP e execute MacroHelper.exe." `
+          --latest
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: pwsh

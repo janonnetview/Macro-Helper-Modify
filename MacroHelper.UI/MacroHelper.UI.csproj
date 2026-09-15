@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <DisableImplicitNamespaceImports_WindowsForms>true</DisableImplicitNamespaceImports_WindowsForms>
+    <AssemblyTitle>SK MacroHelper</AssemblyTitle>
+    <AssemblyDescription>Ferramenta de produtividade — by Aline Martins · Silk</AssemblyDescription>
+    <Company>Silk</Company>
+    <Product>SK MacroHelper</Product>
+    <!-- FONTE ÚNICA da versão. setup.iss lê do .exe compilado e o workflow de release lê daqui;
+         antes havia quatro números divergentes (csproj 1.3.0, setup.iss 1.1.0, workflow 1.2.0.N,
+         README 1.1.0). 2.0.0 porque o app mudou de produto: saiu o login, saiu o Supabase, e o
+         banco passou a ser um arquivo local — nada disso é compatível com a linha 1.x. -->
+    <Version>2.3.0</Version>
+    <AssemblyVersion>2.3.0</AssemblyVersion>
+    <FileVersion>2.3.0</FileVersion>
+    <AssemblyName>MacroHelper</AssemblyName>
+    <SelfContained>false</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- WFAC010 é um conselho do analisador do WinForms: mover o DPI do manifesto para
+         ApplicationHighDpiMode. Aqui a UI principal é WPF (o WinForms entra só pelo ícone
+         de bandeja), e o WPF lê a declaração de DPI do próprio manifesto. Seguir o conselho
+         mudaria o comportamento de renderização em telas HiDPI. Suprimido de propósito. -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Resources\app.ico"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\manual_sql_max.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm"                      Version="8.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection"   Version="8.0.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager"  Version="8.0.0" />
+    <PackageReference Include="Microsoft.Web.WebView2"                     Version="1.0.2651.64" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MacroHelper.Core\MacroHelper.Core.csproj"       />
+    <ProjectReference Include="..\MacroHelper.Data\MacroHelper.Data.csproj"       />
+    <ProjectReference Include="..\MacroHelper.Services\MacroHelper.Services.csproj" />
+  </ItemGroup>
+</Project>

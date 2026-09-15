@@ -1,0 +1,40 @@
+<UserControl x:Class="MacroHelper.UI.Views.ManualSqlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+             Background="Transparent">
+
+    <UserControl.RenderTransform>
+        <TranslateTransform x:Name="PageSlide"/>
+    </UserControl.RenderTransform>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard><Storyboard>
+                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.22"/>
+            </Storyboard></BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid>
+        <wv2:WebView2 x:Name="WebView"/>
+
+        <!-- Aparece só quando o HTML não veio junto na instalação. Sem isto a tela ficava
+             simplesmente branca, sem dizer o que faltava. -->
+        <Border x:Name="AvisoArquivoAusente" Visibility="Collapsed"
+                Style="{StaticResource EmptyStatePanel}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                MaxWidth="460" Margin="28">
+            <StackPanel>
+                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="26"
+                           Foreground="{DynamicResource TextMutedBrush}"
+                           HorizontalAlignment="Center" Margin="0,0,0,14"/>
+                <TextBlock Text="O manual não foi encontrado" FontSize="15" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                <TextBlock x:Name="AvisoCaminho" FontSize="11.5" Margin="0,8,0,0"
+                           Foreground="{DynamicResource TextMutedBrush}"
+                           HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

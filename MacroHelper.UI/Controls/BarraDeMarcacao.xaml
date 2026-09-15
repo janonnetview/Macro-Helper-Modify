@@ -1,0 +1,141 @@
+<UserControl x:Class="MacroHelper.UI.Controls.BarraDeMarcacao"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <!-- Os botões da barra são letras e sinais, e não ícones da fonte do Windows: "B" e "I"
+             são o símbolo universal disso, e um glifo de negrito desenhado precisaria ser
+             explicado. Os poucos que não têm letra própria (link) usam a fonte de ícones. -->
+        <Style x:Key="BotaoDeMarcacao" TargetType="Button" BasedOn="{StaticResource ButtonIconOnly}">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+            <!-- Focusable=False é o que mantém a barra utilizável: o clique num botão NÃO pode
+                 tirar o foco do texto, senão a seleção que se ia formatar deixa de existir. -->
+            <Setter Property="Focusable" Value="False"/>
+        </Style>
+
+        <!-- Um caractere da grade: quadrado, sem borda, com o desenho grande no meio. -->
+        <Style x:Key="BotaoDeCaractere" TargetType="Button" BasedOn="{StaticResource ButtonIconOnly}">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="Focusable" Value="False"/>
+        </Style>
+
+        <!-- O mesmo desenho dos dois popups desta barra. -->
+        <Style x:Key="CartaoDoPopup" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PopupBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{StaticResource RadiusLg}"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,14,14"/>
+            <Setter Property="Effect" Value="{DynamicResource ShadowGlass}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Orientation="Horizontal">
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="negrito" Click="AplicarMarcacao"
+                ToolTip="Negrito (Ctrl+B)" FontWeight="Bold" Content="B"/>
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="italico" Click="AplicarMarcacao"
+                ToolTip="Itálico (Ctrl+I)" FontStyle="Italic" FontFamily="Georgia" Content="I"/>
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="riscado" Click="AplicarMarcacao"
+                ToolTip="Riscado (Ctrl+Shift+X)">
+            <TextBlock Text="S" TextDecorations="Strikethrough"/>
+        </Button>
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="codigo" Click="AplicarMarcacao"
+                ToolTip="Código (Ctrl+Shift+E)" FontFamily="Consolas" FontSize="10.5" Content="&lt;/&gt;"/>
+
+        <!-- Link pede endereço, então este não aplica nada direto: abre o campo abaixo. -->
+        <Button x:Name="BotaoDeLink" Style="{StaticResource BotaoDeMarcacao}" Click="AbrirOLink"
+                ToolTip="Link (Ctrl+K)">
+            <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+        </Button>
+
+        <Border Width="1" Margin="6,4" Background="{DynamicResource BorderSubtleBrush}"/>
+
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="titulo" Click="AplicarMarcacao"
+                ToolTip="Título" FontWeight="Bold" Content="H"/>
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="lista" Click="AplicarMarcacao"
+                ToolTip="Lista" FontSize="14" Content="&#x2022;"/>
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="numerada" Click="AplicarMarcacao"
+                ToolTip="Lista numerada" FontSize="10.5" Content="1."/>
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="tarefa" Click="AplicarMarcacao"
+                ToolTip="Caixa de marcar" FontSize="13" Content="&#x2610;"/>
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="citacao" Click="AplicarMarcacao"
+                ToolTip="Citação" FontSize="13" Content="&#x201C;"/>
+        <Button Style="{StaticResource BotaoDeMarcacao}" Tag="divisor" Click="AplicarMarcacao"
+                ToolTip="Linha divisória" FontSize="13" Content="&#x2014;"/>
+
+        <Border Width="1" Margin="6,4" Background="{DynamicResource BorderSubtleBrush}"/>
+
+        <!-- Caracteres especiais: o que não está no teclado e se resolve hoje procurando num
+             site ou copiando de outra nota. O Ω é o sinal de "símbolo" desde o Word. -->
+        <ToggleButton x:Name="BotaoCaracteres" Cursor="Hand" Focusable="False"
+                      Width="30" Height="28" Background="Transparent" BorderThickness="0"
+                      ToolTip="Caracteres especiais">
+            <ToggleButton.Template>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="bg" CornerRadius="{StaticResource RadiusSm}"
+                            Background="{TemplateBinding Background}">
+                        <TextBlock Text="&#x03A9;" FontSize="13" x:Name="ic"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource SurfaceGlassHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                            <Setter TargetName="ic" Property="Foreground" Value="{DynamicResource AccentTextBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </ToggleButton.Template>
+        </ToggleButton>
+
+        <!-- StaysOpen=False para o clique fora fechar. O IsOpen anda junto do botão nos dois
+             sentidos: fechar pelo clique fora precisa despressionar o botão também. -->
+        <Popup x:Name="PopupCaracteres" StaysOpen="False" AllowsTransparency="True"
+               Placement="Bottom" PlacementTarget="{Binding ElementName=BotaoCaracteres}"
+               VerticalOffset="6" PopupAnimation="Fade"
+               IsOpen="{Binding IsChecked, ElementName=BotaoCaracteres, Mode=TwoWay}">
+            <Border Style="{StaticResource CartaoDoPopup}">
+                <!-- As seções são montadas no code-behind: são quarenta e poucos botões iguais,
+                     e escrever quarenta e poucas linhas de XAML igual seria pior de manter. -->
+                <StackPanel x:Name="GradeDeCaracteres" MaxWidth="320"/>
+            </Border>
+        </Popup>
+
+        <!-- O endereço do link. Com a formatação à vista não dá para digitar o endereço no meio
+             do texto, como o Markdown cru permitia: ele não aparece em lugar nenhum da nota. -->
+        <Popup x:Name="PopupDoLink" StaysOpen="False" AllowsTransparency="True"
+               Placement="Bottom" PlacementTarget="{Binding ElementName=BotaoDeLink}"
+               VerticalOffset="6" PopupAnimation="Fade"
+               Opened="AoAbrirOLink">
+            <Border Style="{StaticResource CartaoDoPopup}">
+                <StackPanel Width="330">
+                    <TextBlock Text="Endereço do link" FontSize="10.5" Margin="4,0,0,6"
+                               Foreground="{DynamicResource TextMutedBrush}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="CampoDoEndereco" Style="{StaticResource InputStyle}"
+                                 Height="32" FontSize="12" Padding="10,0"
+                                 KeyDown="AoTeclarNoEndereco"/>
+                        <Button Grid.Column="1" Content="Aplicar" Click="AplicarOLink"
+                                Style="{StaticResource ButtonSecondary}"
+                                Height="32" Padding="12,0" FontSize="11.5" Margin="6,0,0,0"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Popup>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,706 @@
+﻿{
+  "Tela": "Categorias",
+  "Tema": "Dark",
+  "QuantidadeInicial": 18,
+  "Dimensoes": "1200x760",
+  "Minimo": "940;600",
+  "DpiRenderizacao": 96,
+  "DpiArvore": 1,
+  "Id": "AN-CATEGORIES-LOWER",
+  "Hospedeiro": "263,66,924,681",
+  "Candidato": "263,168,0,0",
+  "MaximoEstatico": 0,
+  "MaximoComPercurso": 0,
+  "Cabe": false,
+  "MapaAtivo": true,
+  "Fase": "rolagem-ou-extensao",
+  "Versao": 1,
+  "Situacao": "rejeitado-64-com-percurso",
+  "PontosDeInputVerificados": 24,
+  "Corpo": null,
+  "Percurso": null,
+  "Rolagem": 1821,
+  "SobreposicoesVisiveis": [],
+  "Elementos": [
+    {
+      "Elemento": "CurrentView",
+      "Original": "263,66,924,681",
+      "Visivel": "263,66,924,681",
+      "Recortado": false
+    },
+    {
+      "Elemento": "ScrollContentPresenter",
+      "Original": "263,168,907,579",
+      "Visivel": "263,168,907,579",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-002-TextBlock-",
+      "Original": "295,90,717,35",
+      "Visivel": "295,90,717,35",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-003-TextBlock-",
+      "Original": "295,130,717,17",
+      "Visivel": "295,130,717,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-004-Button-",
+      "Original": "1012,100,143,38",
+      "Visivel": "1012,100,143,38",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-005-TextBlock-",
+      "Original": "1028,112,13,13",
+      "Visivel": "1028,112,13,13",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-006-TextBlock-",
+      "Original": "1048,110,91,17",
+      "Visivel": "1048,110,91,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-007-TextBlock-",
+      "Original": "334,160,11,11",
+      "Visivel": "334,168,11,3",
+      "Recortado": true
+    },
+    {
+      "Elemento": "obstaculo-008-TextBlock-",
+      "Original": "355,158,13,17",
+      "Visivel": "355,168,13,7",
+      "Recortado": true
+    },
+    {
+      "Elemento": "obstaculo-009-TextBlock-",
+      "Original": "376,158,94,17",
+      "Visivel": "376,168,94,7",
+      "Recortado": true
+    },
+    {
+      "Elemento": "obstaculo-010-Button-",
+      "Original": "1071,152,28,28",
+      "Visivel": "1071,168,28,12",
+      "Recortado": true
+    },
+    {
+      "Elemento": "obstaculo-011-TextBlock-",
+      "Original": "1079,160,11,11",
+      "Visivel": "1079,168,11,3",
+      "Recortado": true
+    },
+    {
+      "Elemento": "obstaculo-012-Button-",
+      "Original": "1099,152,28,28",
+      "Visivel": "1099,168,28,12",
+      "Recortado": true
+    },
+    {
+      "Elemento": "obstaculo-013-TextBlock-",
+      "Original": "1107,160,11,11",
+      "Visivel": "1107,168,11,3",
+      "Recortado": true
+    },
+    {
+      "Elemento": "obstaculo-014-Border-",
+      "Original": "291,195,851,73",
+      "Visivel": "291,195,851,73",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-015-TextBlock-",
+      "Original": "322,223,16,16",
+      "Visivel": "322,223,16,16",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-016-TextBlock-",
+      "Original": "365,214,665,19",
+      "Visivel": "365,214,665,19",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-017-TextBlock-",
+      "Original": "365,233,665,15",
+      "Visivel": "365,233,665,15",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-018-Button-",
+      "Original": "1030,216,30,30",
+      "Visivel": "1030,216,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-019-TextBlock-",
+      "Original": "1039,225,12,12",
+      "Visivel": "1039,225,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-020-Button-",
+      "Original": "1062,216,30,30",
+      "Visivel": "1062,216,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-021-TextBlock-",
+      "Original": "1071,225,12,12",
+      "Visivel": "1071,225,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-022-Button-",
+      "Original": "1094,216,30,30",
+      "Visivel": "1094,216,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-023-TextBlock-",
+      "Original": "1103,225,12,12",
+      "Visivel": "1103,225,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-024-TextBlock-",
+      "Original": "334,291,11,11",
+      "Visivel": "334,291,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-025-TextBlock-",
+      "Original": "355,289,13,17",
+      "Visivel": "355,289,13,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-026-TextBlock-",
+      "Original": "376,289,94,17",
+      "Visivel": "376,289,94,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-027-Button-",
+      "Original": "1071,283,28,28",
+      "Visivel": "1071,283,28,28",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-028-TextBlock-",
+      "Original": "1079,291,11,11",
+      "Visivel": "1079,291,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-029-Button-",
+      "Original": "1099,283,28,28",
+      "Visivel": "1099,283,28,28",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-030-TextBlock-",
+      "Original": "1107,291,11,11",
+      "Visivel": "1107,291,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-031-Border-",
+      "Original": "291,326,851,73",
+      "Visivel": "291,326,851,73",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-032-TextBlock-",
+      "Original": "322,354,16,16",
+      "Visivel": "322,354,16,16",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-033-TextBlock-",
+      "Original": "365,345,665,19",
+      "Visivel": "365,345,665,19",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-034-TextBlock-",
+      "Original": "365,364,665,15",
+      "Visivel": "365,364,665,15",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-035-Button-",
+      "Original": "1030,347,30,30",
+      "Visivel": "1030,347,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-036-TextBlock-",
+      "Original": "1039,356,12,12",
+      "Visivel": "1039,356,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-037-Button-",
+      "Original": "1062,347,30,30",
+      "Visivel": "1062,347,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-038-TextBlock-",
+      "Original": "1071,356,12,12",
+      "Visivel": "1071,356,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-039-Button-",
+      "Original": "1094,347,30,30",
+      "Visivel": "1094,347,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-040-TextBlock-",
+      "Original": "1103,356,12,12",
+      "Visivel": "1103,356,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-041-TextBlock-",
+      "Original": "334,422,11,11",
+      "Visivel": "334,422,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-042-TextBlock-",
+      "Original": "355,420,13,17",
+      "Visivel": "355,420,13,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-043-TextBlock-",
+      "Original": "376,420,94,17",
+      "Visivel": "376,420,94,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-044-Button-",
+      "Original": "1071,414,28,28",
+      "Visivel": "1071,414,28,28",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-045-TextBlock-",
+      "Original": "1079,422,11,11",
+      "Visivel": "1079,422,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-046-Button-",
+      "Original": "1099,414,28,28",
+      "Visivel": "1099,414,28,28",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-047-TextBlock-",
+      "Original": "1107,422,11,11",
+      "Visivel": "1107,422,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-048-Border-",
+      "Original": "291,457,851,73",
+      "Visivel": "291,457,851,73",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-049-TextBlock-",
+      "Original": "322,485,16,16",
+      "Visivel": "322,485,16,16",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-050-TextBlock-",
+      "Original": "365,476,665,19",
+      "Visivel": "365,476,665,19",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-051-TextBlock-",
+      "Original": "365,495,665,15",
+      "Visivel": "365,495,665,15",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-052-Button-",
+      "Original": "1030,478,30,30",
+      "Visivel": "1030,478,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-053-TextBlock-",
+      "Original": "1039,487,12,12",
+      "Visivel": "1039,487,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-054-Button-",
+      "Original": "1062,478,30,30",
+      "Visivel": "1062,478,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-055-TextBlock-",
+      "Original": "1071,487,12,12",
+      "Visivel": "1071,487,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-056-Button-",
+      "Original": "1094,478,30,30",
+      "Visivel": "1094,478,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-057-TextBlock-",
+      "Original": "1103,487,12,12",
+      "Visivel": "1103,487,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-058-TextBlock-",
+      "Original": "334,553,11,11",
+      "Visivel": "334,553,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-059-TextBlock-",
+      "Original": "355,551,13,17",
+      "Visivel": "355,551,13,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-060-TextBlock-",
+      "Original": "376,551,93,17",
+      "Visivel": "376,551,93,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-061-Button-",
+      "Original": "1071,545,28,28",
+      "Visivel": "1071,545,28,28",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-062-TextBlock-",
+      "Original": "1079,553,11,11",
+      "Visivel": "1079,553,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-063-Button-",
+      "Original": "1099,545,28,28",
+      "Visivel": "1099,545,28,28",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-064-TextBlock-",
+      "Original": "1107,553,11,11",
+      "Visivel": "1107,553,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-065-Border-",
+      "Original": "291,588,851,73",
+      "Visivel": "291,588,851,73",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-066-TextBlock-",
+      "Original": "322,616,16,16",
+      "Visivel": "322,616,16,16",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-067-TextBlock-",
+      "Original": "365,607,665,19",
+      "Visivel": "365,607,665,19",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-068-TextBlock-",
+      "Original": "365,626,665,15",
+      "Visivel": "365,626,665,15",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-069-Button-",
+      "Original": "1030,609,30,30",
+      "Visivel": "1030,609,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-070-TextBlock-",
+      "Original": "1039,618,12,12",
+      "Visivel": "1039,618,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-071-Button-",
+      "Original": "1062,609,30,30",
+      "Visivel": "1062,609,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-072-TextBlock-",
+      "Original": "1071,618,12,12",
+      "Visivel": "1071,618,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-073-Button-",
+      "Original": "1094,609,30,30",
+      "Visivel": "1094,609,30,30",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-074-TextBlock-",
+      "Original": "1103,618,12,12",
+      "Visivel": "1103,618,12,12",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-075-TextBlock-",
+      "Original": "334,684,11,11",
+      "Visivel": "334,684,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-076-TextBlock-",
+      "Original": "355,682,13,17",
+      "Visivel": "355,682,13,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-077-TextBlock-",
+      "Original": "376,682,94,17",
+      "Visivel": "376,682,94,17",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-078-Button-",
+      "Original": "1071,676,28,28",
+      "Visivel": "1071,676,28,28",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-079-TextBlock-",
+      "Original": "1079,684,11,11",
+      "Visivel": "1079,684,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-080-Button-",
+      "Original": "1099,676,28,28",
+      "Visivel": "1099,676,28,28",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-081-TextBlock-",
+      "Original": "1107,684,11,11",
+      "Visivel": "1107,684,11,11",
+      "Recortado": false
+    },
+    {
+      "Elemento": "obstaculo-082-ScrollBar-",
+      "Original": "1170,168,17,579",
+      "Visivel": "1170,168,17,579",
+      "Recortado": false
+    },
+    {
+      "Elemento": "ItemsControl-Categorias-hierarquia-completa",
+      "Original": "291,-1639,851,2358",
+      "Visivel": "291,168,851,551",
+      "Recortado": true
+    },
+    {
+      "Elemento": "ultimo-container-inclui-subcategorias",
+      "Original": "291,588,851,131",
+      "Visivel": "291,588,851,131",
+      "Recortado": false
+    }
+  ],
+  "Comandos": [
+    {
+      "Nome": "NavigarParaAjudaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaCategoriasCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaCompromissosCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaConfiguracoesCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaDashboardCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaMacrosCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaManualSqlCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaNotasCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaTarefasCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NavigarParaVariaveisCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SairCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ToggleMacrosExpansaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AplicarTemaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "CarregarSaudeCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AplicarCorAccentCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "IniciarCapturaAtalhoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "RefazerTourCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "RestaurarAtalhosPadraoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SalvarConfiguracoesCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SalvarGatilhoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "TestarNotificacaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AlternarItemCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AlternarVisualizacaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "AbrirNotaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "CancelarExclusaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ConfirmarExclusaoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "CopiarConteudoCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ExcluirCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "FixarCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "FecharEditorCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NovaNotaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SalvarCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "CancelarFormCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "EditarCategoriaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ExcluirCategoriaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NovaCategoriaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SelecionarIconeCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "SalvarCategoriaCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "ConcluirCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "NovaMacroCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "VerCompromissosCommand",
+      "Execucoes": 0
+    },
+    {
+      "Nome": "VerTarefasCommand",
+      "Execucoes": 0
+    }
+  ]
+}

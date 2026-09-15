@@ -1,0 +1,75 @@
+<Window x:Class="MacroHelper.UI.Views.VariaveisWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Preencher Variáveis" SizeToContent="Height"
+        Width="440" WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize"
+        Topmost="True">
+
+    <!-- Sem sombra, aqui e nas outras flutuantes: quem separa a janela do que está atrás é a
+         borda do cartão. A sombra do sistema sai no MolduraNativa, chamado no construtor. -->
+    <Border CornerRadius="{StaticResource RadiusWindow}"
+            Background="{DynamicResource FloatSurfaceBrush}"
+            BorderBrush="{DynamicResource FloatBorderBrush}" BorderThickness="1">
+        <StackPanel Margin="28,24">
+
+            <!-- Header -->
+            <Grid Margin="0,0,0,20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <Border Background="{DynamicResource AccentGradientBrush}" Width="32" Height="32"
+                                CornerRadius="10" Margin="0,0,10,0">
+                            <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Preencher Variáveis" FontSize="17" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="Complete os campos para personalizar a macro antes de inserir."
+                               FontSize="12" Foreground="{DynamicResource TextMutedBrush}"/>
+                </StackPanel>
+                <Button HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Style="{StaticResource ButtonIconOnly}" Click="BtnCancelar_Click">
+                    <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                               Foreground="{DynamicResource TextMutedBrush}"/>
+                </Button>
+            </Grid>
+
+            <!-- Campos dinâmicos (gerados em code-behind) -->
+            <StackPanel x:Name="PainelCampos"/>
+
+            <!-- Prévia -->
+            <Border Background="{DynamicResource SurfaceElevatedBrush}"
+                    BorderBrush="{DynamicResource BorderStrongBrush}"
+                    BorderThickness="1" CornerRadius="14"
+                    Padding="14,10" Margin="0,16,0,20">
+                <StackPanel>
+                    <TextBlock Text="PRÉ-VIA" FontSize="10" FontWeight="Bold"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="TxtPrevia" FontSize="12"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" MaxHeight="70"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Botões -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cancelar" Style="{StaticResource ButtonSecondary}"
+                        Click="BtnCancelar_Click" Margin="0,0,10,0" Width="100"/>
+                <Button Style="{StaticResource ButtonPrimary}"
+                        Click="BtnInserir_Click" Width="150" IsDefault="True">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE945;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   VerticalAlignment="Center" Margin="0,0,7,0"/>
+                        <TextBlock Text="Inserir macro" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+</Window>

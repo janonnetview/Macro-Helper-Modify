@@ -1,0 +1,9 @@
+﻿{
+  "BotoesVerificados": 6,
+  "EventosDurantePercurso": 0,
+  "ComandosAntesDoControlePositivo": 0,
+  "ComandosNoControlePositivo": 1,
+  "ComandosDepoisDaNavegacao": 1,
+  "FocoPreservado": true,
+  "Limite": "Hit test WPF isolado. Sem inje\u00E7\u00E3o de mouse ou teclado do Windows."
+}

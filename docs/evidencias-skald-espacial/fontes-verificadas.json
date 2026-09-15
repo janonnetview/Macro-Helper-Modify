@@ -1,0 +1,110 @@
+{
+  "Data": "2026-09-15T15:58:26.1329529-03:00",
+  "Head": "634a562",
+  "Base": "árvore de trabalho, incluindo alterações preexistentes",
+  "ArquivosAnterioresConferidos": 190,
+  "ArquivosAnterioresAlterados": [],
+  "Fontes": [
+    {
+      "Arquivo": "MacroHelper.UI/Views/MainWindow.xaml",
+      "SHA256": "3C4DB03BDA7E7EDCAACC4B0C011746B2A7FFCD45E382CB512801C7464F535E5A"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/Views/ConfiguracoesView.xaml",
+      "SHA256": "989C8A31E0113FC5AEE0F1F9FE4E43B6B2ABBCA8DAD1D219384C4DD2ADA2BBE4"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/Views/NotasView.xaml",
+      "SHA256": "9B432D7C7FEB6E8F443A91BB0BE4C04E380D5884CA9A02FCF801C4CF7AC54595"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/Views/CategoriasView.xaml",
+      "SHA256": "1A915DB73F329F7AE644FD51AA8F770C0F40B793B3B71C222B45E29EBF9834A6"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/Views/DashboardView.xaml",
+      "SHA256": "828F1D5F42F321EDA318BA4F191F5614C4912E7C59E5A66A91FF3CEE8D6005DF"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/Views/NotasView.xaml.cs",
+      "SHA256": "07931F88EEA7EC2F0ADA4A85DECCD387BBEE64A012840E77A46BE7C81AB0B234"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/App.xaml",
+      "SHA256": "6788E35E7323165BDC86A4FB556974EDF6F31B388F2BB7024381CB54E861F51D"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/Themes/Light.xaml",
+      "SHA256": "1DE4950E7D3F1C27A471DC24049657374B4FDD7A262A2F3F41C54E05D39EF9C0"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/Themes/Dark.xaml",
+      "SHA256": "51319EEF76F40FCD0B99D156BB4E4D769D57421F9DE8B97D99B619416AFC19C4"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/Styles/Tokens.xaml",
+      "SHA256": "335221804495BDFF61D939582EB520D82D4CDEC34674CB6FE842A2FFA8B4AE21"
+    },
+    {
+      "Arquivo": "MacroHelper.UI/ViewModels/DashboardViewModel.cs",
+      "SHA256": "7943168247B3BC617CFE32560C209D9877DF9DF54A3CA58E4CE5F61F1D6957F5"
+    },
+    {
+      "Arquivo": "MacroHelper.Tests/TelaDeTeste.cs",
+      "SHA256": "827B19BB63ACEB47A0D191905F376AA41B27014853F72D5E40B82B95646354B8"
+    },
+    {
+      "Arquivo": "MacroHelper.Tests/Xaml.cs",
+      "SHA256": "B206C03306E4AC05EA23A463BD19F998AC03034A30878C004B62256DEB576F26"
+    },
+    {
+      "Arquivo": "MacroHelper.Tests/SkaldDadosDeDiagnostico.cs",
+      "SHA256": "099A860A1864AAA61737D09A17A3AE84C446A43784C5913746DA994B410DC081"
+    },
+    {
+      "Arquivo": "MacroHelper.Tests/SkaldDiagnosticoEspacialTests.cs",
+      "SHA256": "E5DB254A0C53CC48AF1BCD4701FC5EBCAA50CEEE7F4A80654AAAC23990422A9C"
+    },
+    {
+      "Arquivo": "MacroHelper.Tests/SkaldMapaEspacial.cs",
+      "SHA256": "1406BE9BACDFCDA9939B84F7AFD557E5125A67C90EC6D651343873AB8F31664F"
+    },
+    {
+      "Arquivo": "CLAUDE.md",
+      "SHA256": "309198FA36C26BA3BE340D14AE68778B53C14A56FE470C9D1382663C1A5BCC13"
+    },
+    {
+      "Arquivo": "README.md",
+      "SHA256": "43FBA747D1BD242BC768C8B6ADC64D7124D310A8D825A42304A6103F32453CB3"
+    },
+    {
+      "Arquivo": "docs/SKald-planejamento-integracao.md",
+      "SHA256": "66D324755278B24C33B339FA3C6414E86DE4E9C869D2F4B597D956451B6DDF46"
+    },
+    {
+      "Arquivo": "docs/SKald-mapa-do-sistema.md",
+      "SHA256": "D0181FF2D23BF19108985495774AE3A32A3B832068934C52BE7BFF9A28579739"
+    },
+    {
+      "Arquivo": "docs/SKald-catalogo-de-cenas.md",
+      "SHA256": "6EE41BE80D368FFEB6C13297635CC9880325C713C26723993BF9234FF66A6F84"
+    },
+    {
+      "Arquivo": "docs/SKald-execucao-e-validacao.md",
+      "SHA256": "33893CB5D29FE797CAA2516481C2C22C8522F58B93D38E2F17D06F66201C5213"
+    }
+  ],
+  "ReferenciasSomenteLeitura": [
+    {
+      "Arquivo": "SKald-briefing-completo.md",
+      "Origem": "Downloads, somente leitura",
+      "SHA256": "F4B52509CD10B2B3735A5E6DBDA9169E791A6ACC2F680A5E11441D7FA80B431B"
+    },
+    {
+      "Arquivo": "SKald-plano-visual-e-producao-v1.md",
+      "Origem": "Downloads, somente leitura",
+      "SHA256": "B89407EA09B42C7C264C64D531CEED5DEE16B0986AE97A04859C30277A213D14"
+    }
+  ]
+}
+
